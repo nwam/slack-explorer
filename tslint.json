@@ -37,16 +37,9 @@
 		"prefer-const": true,
 		"prefer-readonly": true,
 		"switch-default": true,
-		"typedef": [
-			true,
-			"array-destructuring",
-			"call-signature",
-			"member-variable-declaration",
-			"object-destructuring",
-			"parameter",
-			"property-declaration"
-        ],
-		"no-console": false
+		"typedef": false,
+		"no-console": false,
+		"only-arrow-functions": false
 	},
 	"defaultSeverity": "warning"
 }

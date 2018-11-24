@@ -5,8 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
 /* GET home page. */
-router.get('/', function (req, res, next) {
-    res.render('index', { title: 'Express in my butt', p2: "poo poo" });
+router.get("/", function (req, res, next) {
+    res.render("index", { title: "Express" });
 });
 module.exports = router;
 //# sourceMappingURL=index.js.map

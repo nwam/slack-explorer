@@ -46,7 +46,7 @@
 			"parameter",
 			"property-declaration"
         ],
-        "no-console": false
+		"no-console": false
 	},
 	"defaultSeverity": "warning",
 

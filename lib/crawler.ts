@@ -1,11 +1,12 @@
 import request from "request-promise-native";
-import { insertMessageData } from "./db";
+import * as db from "./db";
+import { lookupService } from "dns";
 
 const baseUrl = "https://slack.com/api/";
 
 async function post(url: string, form?: any): Promise<any> {
     console.log(`Posting up to ${url}`);
-    const token = "xoxp-470338559206-485507322948-488473861206-e71b7237081702e3b9828e5971d35b38";
+    const token = "xoxp-470338559206-485507322948-486998329044-6c46bb12a1150bd6c8903f4298708ae8";
 
     const headers = {
         "accept-language": "en-US,en;q=0.8",
@@ -71,7 +72,7 @@ async function getMessages(channel: IChannel, url: string, startTime?: number): 
     console.log(`GetMessages ${JSON.stringify(channel)} startTime ${startTime} form:`, form);
 
     const response = await post(url, form);
-    console.log("RESPONSE", response);
+    // console.log("RESPONSE", response);
 
     if (response.messages == null) {
         return;
@@ -93,11 +94,16 @@ async function getMessages(channel: IChannel, url: string, startTime?: number): 
 
     // console.log("MessagesPage", messagesPage);
 
-    insertMessageData(messagesPage);
+    await db.insertMessageData(messagesPage);
 
     if (response.has_more === true) {
         const lastTs = messagesPage[messagesPage.length - 1].time;
+
+        console.log("Recursively getting messages for channel " + channel.name);
         await getMessages(channel, url, lastTs);
+    }
+    else {
+        console.log("Done getting messages for channel " + channel.name);
     }
 }
 
@@ -120,24 +126,33 @@ async function fetchChannels(): Promise<void> {
     const channels = await getChannels();
     const proms: Array<Promise<any>> = [];
     for (const channel of channels) {
-        getChannelMessages(channel);
+        proms.push(getChannelMessages(channel));
     }
+    // tslint:disable-next-line:no-empty
+    return Promise.all(proms).then( () => {});
 }
 
 async function fetchGroups(): Promise<void> {
     const groups = await getGroups();
     const proms: Array<Promise<any>> = [];
     for (const group of groups) {
-        getGroupMessages(group);
+        proms.push(getGroupMessages(group));
     }
+    // tslint:disable-next-line:no-empty
+    return Promise.all(proms).then( () => {});
 }
 
-function fetch(): void {
-    fetchChannels();
-    fetchGroups();
+async function fetch(): Promise<void> {
+    const channels = fetchChannels();
+    const groups = fetchGroups();
+    // tslint:disable-next-line:no-empty
+    return Promise.all([channels, groups]).then( () => {});
 }
 
-fetch();
+fetch().then( () => {
+    console.log("Done fetching");
+    db.close();
+});
 
 /*
 async function fetch(): Promise<IChannelData[]> {

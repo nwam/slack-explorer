@@ -34,7 +34,7 @@ async function find() {
 }
 
 export async function insertMessageData(data: IMessageData[]): Promise<void> {
-    console.log("Inserting MessagesPage", data);
+    console.log("Inserting MessagesPage"); // , data);
     if (initFailed) {
         console.error("Init failed");
         return;
@@ -45,4 +45,8 @@ export async function insertMessageData(data: IMessageData[]): Promise<void> {
 
     await client.db().collection(dbCollection).insertMany(data);
     console.log(`Inserted ${data.length} messages`);
+}
+
+export async function close(): Promise<void> {
+    return client.close();
 }

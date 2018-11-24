@@ -1,12 +1,37 @@
 import request from "request-promise-native";
 import * as db from "./db";
+import { identifier } from "babel-types";
 
 const baseUrl = "https://slack.com/api/";
+
+export interface IChannel {
+    id: string;
+    name: string;
+}
+
+export interface IMessageData {
+    user: string;
+    text: string;
+    time: number;
+
+    threadID?: number;
+    replyCount?: number;
+    replies?: any[];
+}
+
+export interface IUser {
+    id: string;
+    name: string;
+    statusText?: string;
+    statusEmoji?: string;
+    isAdmin: boolean;
+    isAppUser: boolean;
+}
 
 async function post(family: string, method: string, form?: any): Promise<any> {
     const url = `${baseUrl}${family}.${method}`;
     console.log(`Posting up to ${url} payload is:`, form);
-    const token = "xoxp-470338559206-485507322948-486577366465-c8ed5f1f1e1f6bdb92a640315c7a9a69";
+    const token = "xoxp-470338559206-485507322948-487184770658-92eb6e447399487fe94687106ecc940a";
 
     const headers = {
         "accept-language": "en-US,en;q=0.8",
@@ -91,7 +116,7 @@ async function getMessages(channel: IChannel, family: string, startTime?: number
 
     // console.log("MessagesPage", messagesPage);
 
-    await db.insertMessageData(messagesPage);
+    await db.insertMessages(messagesPage);
 
     if (response.has_more === true) {
         const lastTs = messagesPage[messagesPage.length - 1].time;
@@ -104,23 +129,9 @@ async function getMessages(channel: IChannel, family: string, startTime?: number
     }
 }
 
-interface IChannel {
-    id: string;
-    name: string;
-}
-
-export interface IMessageData {
-    user: string;
-    text: string;
-    time: number;
-
-    threadID?: number;
-    replyCount?: number;
-    replies?: any[];
-}
-
 async function fetchChannels(): Promise<void> {
     const channels = await getChannels();
+    db.insertChannels(channels);
     const proms: Array<Promise<any>> = [];
     for (const channel of channels) {
         proms.push(getChannelMessages(channel));
@@ -141,7 +152,21 @@ async function fetchGroups(): Promise<void> {
 
 async function fetchUsers(): Promise<void> {
     const result = await post("users", "list", { limit: Number.MAX_SAFE_INTEGER });
-    console.log(result);
+    if (result == null || result.members == null) {
+        console.error("Bad users result", result);
+        return;
+    }
+    const members = result.members as [];
+    const users: IUser[] = members.map( (user: any): IUser => {
+        return {
+            id: user.id,
+            name: user.name,
+            isAdmin: user.is_admin,
+            isAppUser: user.is_app_user
+        };
+    });
+
+    await db.insertUsers(users);
 }
 
 async function fetch(): Promise<void> {
@@ -153,8 +178,9 @@ async function fetch(): Promise<void> {
 }
 
 fetch().then( async () => {
-    console.log("Done fetching");
+    console.log("Closing db now");
     await db.close();
+    console.log("Done main fetch");
 });
 
 /*

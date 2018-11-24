@@ -1,7 +1,7 @@
 import createError from "http-errors";
 import express from "express";
 import * as path from "path";
-import cookieParser from "body-parser";
+import cookieParser from "cookie-parser";
 import logger from "morgan";
 
 import indexRouter from "./routes/index";

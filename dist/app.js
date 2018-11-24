@@ -13,7 +13,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const http_errors_1 = __importDefault(require("http-errors"));
 const express_1 = __importDefault(require("express"));
 const path = __importStar(require("path"));
-const body_parser_1 = __importDefault(require("body-parser"));
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const morgan_1 = __importDefault(require("morgan"));
 const index_1 = __importDefault(require("./routes/index"));
 const app = express_1.default();
@@ -23,7 +23,7 @@ app.set('view engine', 'pug');
 app.use(morgan_1.default('dev'));
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: false }));
-app.use(body_parser_1.default());
+app.use(cookie_parser_1.default());
 app.use(express_1.default.static(path.join(__dirname, 'public')));
 app.use('/', index_1.default);
 // catch 404 and forward to error handler

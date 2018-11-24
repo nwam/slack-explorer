@@ -3,9 +3,9 @@ extends layout
 block content
   h1= title
 
-  canvas(id="viewport" width="800" height="600")
+  div(id="viewport" style="width: 600px; height: 400px; border: 1px solid lightgray;")
 
 
 append scripts
   script(src='/js/index.js')
-  script(src='/js/arbor.js')
+  script(src='/js/vis.min.js')

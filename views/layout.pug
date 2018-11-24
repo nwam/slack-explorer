@@ -2,9 +2,10 @@ doctype html
 html
   head
     title= title
-    link(rel='stylesheet', href='/stylesheets/style.css')
+    link(rel='stylesheet', href='/stylesheets/vis.min.css')
   body
     block content
 
     block scripts
+      script(type='text/javascript' src='../js/vis.min.js')
       script(type='text/javascript' src='http://code.jquery.com/jquery-latest.min.js')

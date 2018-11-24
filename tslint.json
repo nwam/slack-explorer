@@ -48,7 +48,5 @@
         ],
 		"no-console": false
 	},
-	"defaultSeverity": "warning",
-
-	"rulesDirectory": [ "src/test/" ]
+	"defaultSeverity": "warning"
 }

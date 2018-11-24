@@ -22,7 +22,7 @@ app.use('/', indexRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req: express.Request, res: express.Response, next: express.NextFunction) {
-  next(createError(404));
+  return res.status(404).send("There is no page at " + req.path);
 });
 
 // error handler

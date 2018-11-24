@@ -10,7 +10,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const http_errors_1 = __importDefault(require("http-errors"));
 const express_1 = __importDefault(require("express"));
 const path = __importStar(require("path"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
@@ -28,7 +27,7 @@ app.use(express_1.default.static(path.join(__dirname, 'public')));
 app.use('/', index_1.default);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
-    next(http_errors_1.default(404));
+    return res.status(404).send("There is no page at " + req.path);
 });
 // error handler
 app.use(function (err, req, res, next) {

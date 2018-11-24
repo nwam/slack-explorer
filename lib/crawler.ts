@@ -31,7 +31,7 @@ export interface IUser {
 async function post(family: string, method: string, form?: any): Promise<any> {
     const url = `${baseUrl}${family}.${method}`;
     console.log(`Posting up to ${url} payload is:`, form);
-    const token = "xoxp-470338559206-485507322948-487184770658-92eb6e447399487fe94687106ecc940a";
+    const token = "xoxp-470338559206-486947582787-487365629621-f86958d540fb268dfea4f79f9a82010a";
 
     const headers = {
         "accept-language": "en-US,en;q=0.8",
@@ -156,7 +156,7 @@ async function fetchUsers(): Promise<void> {
         console.error("Bad users result", result);
         return;
     }
-    const members = result.members as [];
+    const members = result.members as Array<any>;
     const users: IUser[] = members.map( (user: any): IUser => {
         return {
             id: user.id,

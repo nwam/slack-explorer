@@ -105,3 +105,4 @@ export async function close(): Promise<void> {
         console.log("No db connection to close");
     }
 }
+

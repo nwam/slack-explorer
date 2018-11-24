@@ -28,9 +28,16 @@ async function initialize(): Promise<Mongo.MongoClient> {
 }
 
 async function find() {
-    if (client == null) {
+    console.log("Inserting MessagesPage"); // , data);
+    if (initFailed) {
+        console.error("Init failed");
+        return;
+    }
+    else if (client == null) {
         await initialize();
     }
+
+    await client.db().collection(dbCollection).find({});
 }
 
 export async function insertMessageData(data: IMessageData[]): Promise<void> {

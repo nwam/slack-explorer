@@ -1,19 +1,21 @@
 import request from "request-promise-native";
-import { text } from "body-parser";
+import * as db from "./db";
+import { lookupService } from "dns";
 
 const baseUrl = "https://slack.com/api/";
 
-async function post(url:string, form?: any): Promise<any> {
-    const token = "xoxp-470338559206-486947582787-486909012852-313369c00b95541c1c05bb7899e2ebdb";
+async function post(url: string, form?: any): Promise<any> {
+    console.log(`Posting up to ${url}`);
+    const token = "xoxp-470338559206-485507322948-486998329044-6c46bb12a1150bd6c8903f4298708ae8";
 
     const headers = {
-        'accept-language': 'en-US,en;q=0.8',
-        'content-type': 'application/x-www-form-urlencoded',
-        'Authorization': `Bearer ${token}`
+        "accept-language": "en-US,en;q=0.8",
+        "content-type": "application/x-www-form-urlencoded",
+        "Authorization": `Bearer ${token}`
     };
 
     const fullForm = form || {};
-    fullForm["token"] = token;
+    fullForm.token = token;
 
     return request.post({
         json: true,
@@ -25,30 +27,56 @@ async function post(url:string, form?: any): Promise<any> {
 
 async function getChannels(): Promise<IChannel[]>{
     const url = `${baseUrl}channels.list`;
+    return await getIds(url);
+}
 
+async function getGroups(): Promise<IChannel[]>{
+    const url = `${baseUrl}groups.list`;
+    return await getIds(url);
+}
+
+async function getIds(url: string) : Promise<IChannel[]>{
     const response = await post(url);
-    
-    const channels = response.channels as Array<any>;
+
+    const channels = (response.channels || response.groups);
+
+    if (channels == null) {
+        console.error("Channel get failed, response was:", response);
+        return;
+    }
+
     return channels.map( (channel: any): IChannel => {
         return {
             id: channel.id,
             name: channel.name
-        }
+        };
     });
 }
 
-async function getMessages(channel: IChannel, startTime?: number): Promise<void> {
+async function getChannelMessages(channel: IChannel): Promise<void> {
     const url = `${baseUrl}channels.history`;
-    const form = { 
+    return getMessages(channel, url);
+}
+
+async function getGroupMessages(channel: IChannel): Promise<void> {
+    const url = `${baseUrl}groups.history`;
+    return getMessages(channel, url);
+}
+
+async function getMessages(channel: IChannel, url: string, startTime?: number): Promise<void> {
+    const form = {
         channel: channel.id,
         count: 1000,
         oldest: startTime || 0
     };
-    console.log(`GetMessages ${channel} startTime ${startTime} form:`, form);
+    console.log(`GetMessages ${JSON.stringify(channel)} startTime ${startTime} form:`, form);
 
     const response = await post(url, form);
-    console.log("RESPONSE", response);
+    // console.log("RESPONSE", response);
 
+    if (response.messages == null) {
+        return;
+    }
     const messagesPage: IMessageData[] = response.messages.map(
         (m: any) => {
             const md: IMessageData = {
@@ -59,44 +87,72 @@ async function getMessages(channel: IChannel, startTime?: number): Promise<void>
                 threadID: m.thread_ts,
                 replyCount: m.reply_count,
                 replies: m.replies,
-            }
+            };
 
             return md;
         });
-    
-    console.log("MessagesPage", messagesPage);
-    
-    if (response.has_more == true) {
+
+    // console.log("MessagesPage", messagesPage);
+
+    await db.insertMessageData(messagesPage);
+
+    if (response.has_more === true) {
         const lastTs = messagesPage[messagesPage.length - 1].time;
-        await getMessages(channel, lastTs);
+
+        console.log("Recursively getting messages for channel " + channel.name);
+        await getMessages(channel, url, lastTs);
+    }
+    else {
+        console.log("Done getting messages for channel " + channel.name);
     }
 }
 
 interface IChannel {
-    id: string,
-    name: string
+    id: string;
+    name: string;
 }
 
-interface IMessageData {
-    user: string,
-    text: string,
-    time: number,
+export interface IMessageData {
+    user: string;
+    text: string;
+    time: number;
 
-    threadID?: number,
-    replyCount?: number,
-    replies?: Array<any>
+    threadID?: number;
+    replyCount?: number;
+    replies?: any[];
+}
+
+async function fetchChannels(): Promise<void> {
+    const channels = await getChannels();
+    const proms: Array<Promise<any>> = [];
+    for (const channel of channels) {
+        proms.push(getChannelMessages(channel));
+    }
+    // tslint:disable-next-line:no-empty
+    return Promise.all(proms).then( () => {});
+}
+
+async function fetchGroups(): Promise<void> {
+    const groups = await getGroups();
+    const proms: Array<Promise<any>> = [];
+    for (const group of groups) {
+        proms.push(getGroupMessages(group));
+    }
+    // tslint:disable-next-line:no-empty
+    return Promise.all(proms).then( () => {});
 }
 
 async function fetch(): Promise<void> {
-    const channels = await getChannels();
-    const proms: Promise<any>[] = [];
-    for (const channel of channels) {
-        getMessages(channel);
-    }
-
+    const channels = fetchChannels();
+    const groups = fetchGroups();
+    // tslint:disable-next-line:no-empty
+    return Promise.all([channels, groups]).then( () => {});
 }
 
-fetch();
+fetch().then( () => {
+    console.log("Done fetching");
+    db.close();
+});
 
 /*
 async function fetch(): Promise<IChannelData[]> {

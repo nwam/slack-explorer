@@ -58,20 +58,29 @@ var Renderer = function(canvas) {
           // pt:   {x:#, y:#}  node position in screen coords
 
           // draw a rectangle centered at pt
-          var w = 35
-          ctx.beginPath();
-          ctx.arc(pt.x, pt.y, w, 0, 2*Math.PI);
-          ctx.lineWidth = 10;
-          ctx.stroke();
-          ctx.fillStyle="pink";
-          ctx.fill()
-          ctx.font="20px Georgia";
-          ctx.lineWidth = 2;
           let name = node.data.displayString;
           if (name == null) {
               name = "hello";
           }
-          ctx.strokeText(name, pt.x-w/2,pt.y);
+          if (node.data.type == "channel"){
+              ctx.fillStyle="blue";
+              var w = 50
+          } else if (node.data.type == "user"){
+              ctx.fillStyle="green";
+              var w = 35
+          } else {
+              ctx.fillStyle="pink";
+              var w = 15
+          }
+
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, w, 0, 2*Math.PI);
+          ctx.lineWidth = 10;
+          ctx.stroke();
+          ctx.fill();
+          ctx.font="20px Georgia";
+          ctx.lineWidth = 2;
+          ctx.strokeText(name, pt.x-w/2,pt.y-w/2);
           
           //ctx.fillStyle = (node.data.alone) ? "pink" : "purple"
           //ctx.fillRect(pt.x-w/10, pt.y-w/2, w,w)
@@ -85,24 +94,26 @@ var Renderer = function(canvas) {
         // set up a handler object that will initially listen for mousedowns then
         // for moves and mouseups while dragging
         var handler = {
+
           clicked:function(e){
             var pos = $(canvas).offset();
-            _mouseP = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
+            _mouseP = arbor.Point(e.pageX-pos.left, e.pageY-pos.top);
             dragged = particleSystem.nearest(_mouseP);
 
             if (dragged && dragged.node !== null){
               // while we're dragging, don't let physics move the node
-              dragged.node.fixed = true
+              dragged.node.fixed = true;
             }
 
             $(canvas).bind('mousemove', handler.dragged)
             $(window).bind('mouseup', handler.dropped)
+            $(canvas).mousemove(handler.moved);
 
             return false
           },
           dragged:function(e){
             var pos = $(canvas).offset();
-            var s = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
+            var s = arbor.Point(e.pageX-pos.left, e.pageY-pos.top);
 
             if (dragged && dragged.node !== null){
               var p = particleSystem.fromScreen(s)
@@ -148,15 +159,24 @@ var Renderer = function(canvas) {
     //
     sys.graft({
       nodes:{
-        a: { displayString: "a" },
-        f: { alone:true, mass:.25 }
+        a: { displayString: "#iamachannel", type: "channel"},
+        b: { displayString: "personsname", type: "user"},
+        c: { displayString: "personsname", type: "user"},
+        d: { displayString: "#iamachannel", type: "channel"},
+        e: { displayString: "personsname", type: "user"},
+        f: { displayString: "personsname", type: "user"},
+        g: { displayString: "personsname", type: "user"},
+
       }, 
       edges:{
         a: {
             b:{},
-            c:{},
-            d:{},
-            e:{}
+            c:{}
+        },
+        d: {
+            e:{},
+            f:{},
+            g:{}
         }
       }
     })

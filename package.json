@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "watch-node": "nodemon --watch . bin/www",
-    "watch-ts": "npm run copy-static && tsc -w",
-    "copy-static": "cp -r views dist/"
+    "watch-ts": "tsc -w",
+    "copy-static": "cp -r views dist/ && cp -r public dist/"
   },
   "dependencies": {
     "@types/http-errors": "^1.6.1",

@@ -1,12 +1,12 @@
 import request from "request-promise-native";
 import * as db from "./db";
-import { lookupService } from "dns";
 
 const baseUrl = "https://slack.com/api/";
 
-async function post(url: string, form?: any): Promise<any> {
-    console.log(`Posting up to ${url}`);
-    const token = "xoxp-470338559206-485507322948-486998329044-6c46bb12a1150bd6c8903f4298708ae8";
+async function post(family: string, method: string, form?: any): Promise<any> {
+    const url = `${baseUrl}${family}.${method}`;
+    console.log(`Posting up to ${url} payload is:`, form);
+    const token = "xoxp-470338559206-485507322948-486577366465-c8ed5f1f1e1f6bdb92a640315c7a9a69";
 
     const headers = {
         "accept-language": "en-US,en;q=0.8",
@@ -26,17 +26,15 @@ async function post(url: string, form?: any): Promise<any> {
 }
 
 async function getChannels(): Promise<IChannel[]>{
-    const url = `${baseUrl}channels.list`;
-    return await getIds(url);
+    return await getList("channels");
 }
 
 async function getGroups(): Promise<IChannel[]>{
-    const url = `${baseUrl}groups.list`;
-    return await getIds(url);
+    return await getList("groups");
 }
 
-async function getIds(url: string) : Promise<IChannel[]>{
-    const response = await post(url);
+async function getList(family: string) : Promise<IChannel[]>{
+    const response = await post(family, "list");
 
     const channels = (response.channels || response.groups);
 
@@ -54,16 +52,14 @@ async function getIds(url: string) : Promise<IChannel[]>{
 }
 
 async function getChannelMessages(channel: IChannel): Promise<void> {
-    const url = `${baseUrl}channels.history`;
-    return getMessages(channel, url);
+    return getMessages(channel, "channels");
 }
 
 async function getGroupMessages(channel: IChannel): Promise<void> {
-    const url = `${baseUrl}groups.history`;
-    return getMessages(channel, url);
+    return getMessages(channel, "groups");
 }
 
-async function getMessages(channel: IChannel, url: string, startTime?: number): Promise<void> {
+async function getMessages(channel: IChannel, family: string, startTime?: number): Promise<void> {
     const form = {
         channel: channel.id,
         count: 1000,
@@ -71,10 +67,11 @@ async function getMessages(channel: IChannel, url: string, startTime?: number): 
     };
     console.log(`GetMessages ${JSON.stringify(channel)} startTime ${startTime} form:`, form);
 
-    const response = await post(url, form);
+    const response = await post(family, "history", { channel: channel.id, count: 1000 });
     // console.log("RESPONSE", response);
 
     if (response.messages == null) {
+        console.error("Got null messages, response was:", response);
         return;
     }
     const messagesPage: IMessageData[] = response.messages.map(
@@ -100,7 +97,7 @@ async function getMessages(channel: IChannel, url: string, startTime?: number): 
         const lastTs = messagesPage[messagesPage.length - 1].time;
 
         console.log("Recursively getting messages for channel " + channel.name);
-        await getMessages(channel, url, lastTs);
+        await getMessages(channel, family, lastTs);
     }
     else {
         console.log("Done getting messages for channel " + channel.name);
@@ -142,16 +139,22 @@ async function fetchGroups(): Promise<void> {
     return Promise.all(proms).then( () => {});
 }
 
-async function fetch(): Promise<void> {
-    const channels = fetchChannels();
-    const groups = fetchGroups();
-    // tslint:disable-next-line:no-empty
-    return Promise.all([channels, groups]).then( () => {});
+async function fetchUsers(): Promise<void> {
+    const result = await post("users", "list", { limit: Number.MAX_SAFE_INTEGER });
+    console.log(result);
 }
 
-fetch().then( () => {
+async function fetch(): Promise<void> {
+    const channels = fetchChannels().then(() => console.log("done channels"));
+    const groups = fetchGroups().then(() => console.log("done groups"));
+    const users = fetchUsers().then(() => console.log("done users"));
+    // tslint:disable-next-line:no-empty
+    return Promise.all([ channels, groups, users ]).then( () => {});
+}
+
+fetch().then( async () => {
     console.log("Done fetching");
-    db.close();
+    await db.close();
 });
 
 /*

@@ -54,6 +54,16 @@ export async function insertMessageData(data: IMessageData[]): Promise<void> {
     console.log(`Inserted ${data.length} messages`);
 }
 
+export async function insertUsers(): Promise<void> {
+
+}
+
 export async function close(): Promise<void> {
-    return client.close();
+    if (client != null) {
+        console.log("Closing db client");
+        client.close();
+    }
+    else {
+        console.log("No db connection to close");
+    }
 }

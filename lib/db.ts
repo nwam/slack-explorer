@@ -99,8 +99,8 @@ export async function findChannelTotals(): Promise<any> {
     const result = await resultCursor.toArray();
     return result.map( (item) => {
         return {
-            channelId : item._id,
-            channelName : `#${item.channel.name}`,
+            id : item._id,
+            name : `#${item.channel.name}`,
             count : item.count
         };
     });
@@ -141,8 +141,8 @@ export async function findUserTotals(): Promise<any> {
     ]);
     const result = await resultCursor.toArray();
     return result.map( (item) => {return {
-        userId : item._id,
-        userName : item.user.name,
+        id : item._id,
+        name : item.user.name,
         isAdmin : item.user.isAdmin,
         count : item.count
     }; });

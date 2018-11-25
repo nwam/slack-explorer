@@ -78,13 +78,13 @@ function createEdge(from, to, width){
 
 function createChannelNodes(channels) {
     return channels.map( (channel) => {
-        return createNode(channel.channelId, channel.channelName, 'channel');
+        return createNode(channel.id, channel.name, 'channel');
     });
 }
 
 function createUserNodes(users) {
     return users.map( (user) => {
-        return createNode(user.userId, user.userName, 'user');
+        return createNode(user.id, user.name, 'user');
     });
 }
 
@@ -175,6 +175,7 @@ $.getJSON(`${serverUrl}/db/network`, (networkData) => {
     const selectedNodeID = qs.node;
     console.log("qs", qs, "selectedNode", selectedNodeID);
 
+    console.log("networkdata", networkData);
     const channelNodes = createChannelNodes(networkData.channels, selectedNodeID);
     const userNodes = createUserNodes(networkData.users, selectedNodeID);
 
@@ -182,11 +183,12 @@ $.getJSON(`${serverUrl}/db/network`, (networkData) => {
     const edgesArray = createEdges(networkData.interactions);
 
     if (selectedNodeID != null) {
-        console.log("users are", networkData.users);
-        const name = networkData.find( (user) => user.userId === selectedNodeID).userName;
+        // Find the user/channel with this ID
+        const name = (networkData.channels.concat(networkData.users)).find( (node) => node.id === selectedNodeID).name;
+
         const currentTitle = $("#title").html();
         $("#title").html(currentTitle + " - " + name);
-        console.log("Username is " + name);
+        console.log("user/channel name is " + name);
 
         console.log(`Before selecting there are ${nodesArray.length} nodes`);
 
@@ -194,13 +196,11 @@ $.getJSON(`${serverUrl}/db/network`, (networkData) => {
         for (node of nodesArray) {
             // console.log("node", node);
             if (node.id === selectedNodeID || isConnectedTo(selectedNodeID, node.id, edgesArray)) {
-                console.log("Push node", node);
+                // console.log("Push node", node);
                 filteredNodes.push(node);
             }
         }
         nodesArray = filteredNodes;
-
-        console.log("nodesarray", nodesArray);
 
         console.log(`after selecting there are ${nodesArray.length} nodes`);
         /*

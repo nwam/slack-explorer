@@ -64,24 +64,34 @@ export async function findChannelTotals(): Promise<any> {
         return;
     }
 
-    const result = await client.db().collection('messages').aggregate([
-        { 
-            "$group" : 
-            {_id:"$channelID", count:{$sum:1}}
-        }, 
-        { 
-            $lookup: 
-            {from: 'channels', localField: '_id', foreignField: "id", as: "channel"}
-        }, 
-        { $unwind: "$channel" }, 
-        { 
-            $project: 
-            { 
-                count:1,
-                channel: {name:1}
+    const result = await client.db().collection("messages").aggregate([
+        {
+            $group:
+            {
+                _id: "$channelID",
+                count: { $sum: 1 }
+            }
+        },
+        {
+            $lookup:
+            {
+                from: "channels",
+                localField: "_id",
+                foreignField: "id",
+                as: "channel"
+            }
+        },
+        {
+            $unwind: "$channel"
+        },
+        {
+            $project:
+            {
+                count: 1,
+                channel: {name: 1}
             }
         }
-    ])
+    ]);
     return result.toArray();
 }
 

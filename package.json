@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "watch-node": "nodemon --watch . bin/www",
+    "watch-node": "nodemon --watch . dist/app.js",
     "watch-ts": "tsc -w",
     "copy-static": "cp -r views dist/ && cp -r public dist/"
   },
@@ -19,6 +19,7 @@
     "pug": "2.0.0-beta11",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.5",
+    "socket.io": "^2.1.1",
     "typescript": "^3.1.6"
   },
   "devDependencies": {
@@ -28,6 +29,7 @@
     "@types/node": "^10.12.10",
     "@types/request": "^2.48.1",
     "@types/request-promise-native": "^1.0.15",
+    "@types/socket.io": "^2.1.0",
     "nodemon": "^1.18.6"
   }
 }

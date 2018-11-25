@@ -353,3 +353,17 @@ $.getJSON(`${serverUrl}/db/network`, (networkData) => {
         });
 
 });
+
+function onSearch() {
+    const username = $("#search-input").val();
+    console.log("input username", username);
+    if (username == "") {
+      $("#search-output").text("Enter a username to look up");
+      return;
+    }
+
+    console.log("fuck time");
+    $.get(`${serverUrl}/getid/${username}`, function(data) {
+      window.location.href = "/?node=" + data;
+    });
+  }

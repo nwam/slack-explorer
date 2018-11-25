@@ -94,7 +94,6 @@ var options = {
     nodes:{
         borderWidth: 1,
         borderWidthSelected: 3,
-        opacity: 0.5,
         color: {
           border: '#2B7CE9',
           background: '#97C2FC',

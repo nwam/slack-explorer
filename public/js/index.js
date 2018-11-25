@@ -183,11 +183,7 @@ function createNode(id, label, type) {
 
 const WIDTH_FLOOR = 15;
 
-function createEdge(from, to, width){
-    let label = "";
-    if (width >= WIDTH_FLOOR) {
-        label = "" + width;
-    }
+function createEdge(from, to, width, label) {
     const edge = {
         from: from,
         to: to,
@@ -220,14 +216,19 @@ function createUserNodes(users) {
 function createEdges(interactions) {
 
     return interactions.map ( (i) => {
-        let width = i.count;
+        const actualWidth = i.count;
+        let width = actualWidth;
+        let label = "";
+        if (width >= WIDTH_FLOOR) {
+            label = "" + width;
+        }
 
         if (width > 30 && i.channelId === "GEAS9313N") {
             // lol
-            width = WIDTH_FLOOR;
+            width = 30;
         }
 
-        return createEdge(i.userId, i.channelId, width);
+        return createEdge(i.userId, i.channelId, width, label);
     });
 }
 

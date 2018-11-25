@@ -5,7 +5,7 @@ export const indexRouter = express.Router();
 
 /* GET home page. */
 indexRouter.get("/", async function(req: express.Request, res: express.Response, next: express.NextFunction) {
-  const title = "Network";
+  const title = "HackWestern5";
   /*
   const nodeQp = req.query.node;
   console.log("nodeqp", nodeQp);

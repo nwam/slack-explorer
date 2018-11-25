@@ -1,5 +1,4 @@
 body {
-  padding: 25px;
   padding-top: 20px;
   font: 18px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
@@ -14,7 +13,7 @@ body {
 
 #user-content {
   display: flex;
-  
+
 }
 
 #user-content > #viewport {

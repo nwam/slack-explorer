@@ -1,3 +1,5 @@
+serverUrl = 'http://localhost:3000';
+
 function createNode(id, label, type) {
     let color;
     switch(type){
@@ -61,35 +63,24 @@ function createEdge(from, to, width){
     return edge
 }
 
-// create an array with nodes
- var nodes = new vis.DataSet([
-    createNode('1', "#channel1", "channel"),
-    createNode(2, "username1", "user"),
-    createNode(3, "username2", "user"),
-    createNode(4, "#channel2", "channel"),
-    createNode(5, "username3", "user"),
-    createNode(6, "username4", "user"),
-    createNode(7, "username5", "user"),
-    createNode(8, "LONELY"),
-]);
+function createChannelNodes(channels) {
+    return channels.map( (channel) => {
+        return createNode(channel.channelId, channel.channelName, 'channel');
+    });
+}
 
-// create an array with edges
-var edges = new vis.DataSet([
-    createEdge('1', 3, 10),
-    {from: '1', to: 2},
-    createEdge(4, 5, 20),
-    {from: 4, to: 6},
-    {from: 4, to: 7}
-]);
+function createUserNodes(users) {
+    return users.map( (user) => {
+        return createNode(user.userId, user.userName, 'user');
+    });
+}
 
-// create a network
-var container = document.getElementById('viewport');
+function createEdges(interactions) {
+    return interactions.map ( (i) => {
+        return createEdge(i.userId, i.channelId, i.count);
+    });
+}
 
-// provide the data in the vis format
-var data = {
-    nodes: nodes,
-    edges: edges
-};
 var options = {
     nodes:{
         borderWidth: 1,
@@ -155,12 +146,27 @@ var options = {
     }
 };
 
-const nodeID = window.nodeID;
+$.getJSON(`${serverUrl}/db/network`, (networkData) => {
+    const channelNodes = createChannelNodes(networkData.channels);
+    const userNodes = createUserNodes(networkData.users);
+    const nodes = new vis.DataSet(channelNodes.concat(userNodes));
+    const edges = new vis.DataSet(createEdges(networkData.interactions));
 
-// initialize your network!
-var network = new vis.Network(container, data, options);
+    // create a network
+    var container = document.getElementById('viewport');
 
-network.on("doubleClick", function (event) {
-    const clickedNodeID = event.nodes[0];
-    window.location.href = "/u/" + clickedNodeID;
+    // provide the data in the vis format
+    var data = {
+        nodes: nodes,
+        edges: edges
+    };
+
+    // initialize your network!
+    var network = new vis.Network(container, data, options);
+
+    network.on("doubleClick", function (event) {
+        const clickedNodeID = event.nodes[0];
+        window.location.href = "/u/" + clickedNodeID;
+    });
+
 });

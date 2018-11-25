@@ -8,7 +8,7 @@ import http from "http";
 import Rtm from "./lib/rtm";
 import { normalizePort, onError } from "./lib/initFunctions";
 
-import indexRouter from "./routes/index";
+import { indexRouter } from "./routes/index";
 import dbRouter from "./routes/dbRouter";
 
 const app = express();

@@ -1,6 +1,7 @@
 import express from "express";
 
 import * as db from "../lib/db";
+import { NODE_ID_KEY } from "./index";
 
 const router = express.Router();
 
@@ -19,11 +20,20 @@ router.get("/db/network", async function(req: express.Request, res: express.Resp
   const channels = db.findChannelTotals();
   const users = db.findUserTotals();
   const interactions = db.findUsersInteractions();
-  
+
   return res.json({
     channels : await channels, 
     users : await users,
     interactions : await interactions});
+});
+
+router.get(`/db/user/:${NODE_ID_KEY}`, async function(req: express.Request, res: express.Response, next: express.NextFunction) {
+  const userID = req.params[NODE_ID_KEY];
+  const words = db.countWords(await db.findUserMessages(userID));
+
+  return res.json({
+    words : await words
+  });
 });
 
 export = router;

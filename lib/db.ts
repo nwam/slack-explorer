@@ -1,11 +1,15 @@
 // tslint:disable-next-line:no-require-imports
 import Mongo = require("mongodb");
 import { IMessageData, IChannel, IUser } from "./crawler";
+import { stringify } from "querystring";
 
 const dbHost = "localhost";
 const DB_CREDS = "";
 const dbName = "db";
 const dbUrl = `mongodb://${DB_CREDS}${dbHost}:27017/${dbName}`;
+// tslint:disable-next-line:max-line-length
+const common_words : Set<string> = new Set(["the","of","and","a","to","in","is","you","that","it","he","was","for","on","are","as","with","his","they","I","at","be","this","have","from","or","one","had","by","word","but","not","what","all","were","we","when","your","can","said","there","use","an","each","which","she","do","how","their","if","will","up","other","about","out","many","then","them","these","so","some","her","would","make","like","him","into"]);
+
 
 const dbClient = new Mongo.MongoClient(dbUrl);
 
@@ -269,6 +273,36 @@ export async function close(): Promise<void> {
     }
 }
 
-//findUsersInteractions().then( (result) => console.log(result));
-findUserTotals().then( (result) => console.log(result));
-// findChannelMessages("CDXKBM9N2").then( (r) => console.log(r));
+export function countWords(messages: IMessageData[], topn = 250): any {
+    const occurrences: Map<string, number> = new Map<string, number>();
+    messages.forEach( (msg) => {
+        if (msg.subtype == 'channel_join') {
+            return;
+        }
+        const words: string[] = msg.text.split(/[\s!\.]/);
+
+        words.forEach( (word) => {
+            word = word.toLowerCase();
+            if (word.length < 3 || common_words.has(word)) {
+                return;
+            }
+            const count = occurrences[word] + 1 || 1;
+            occurrences[word] = count;
+        });
+    });
+    const sortable = [];
+    for (let word in occurrences) {
+        sortable.push({
+            text: word,
+            size: occurrences[word]
+        });
+    }
+    const sorted = sortable.sort( (oc1, oc2) => {
+        return oc2.size - oc1.size;
+    });
+    return sorted.slice(0, topn);
+}
+
+//findUsersqInteractions().then( (result) => console.log(result));
+//findUserTotals().then( (result) => console.log(result));
+findChannelMessages("CDXKBM9N2").then( (r) => console.log(countWords(r)));

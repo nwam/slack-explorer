@@ -52,9 +52,8 @@ $.getJSON(`${serverUrl}/db/u/${id}`, (data) => {
         data: {
             labels: timeCounts.times,
             datasets: [{
-                label: "My First dataset",
-                backgroundColor: 'rgb(255, 99, 132)',
-                borderColor: 'rgb(255, 99, 132)',
+                label: "Number of posts",
+                borderColor: '#008E95',
                 data: timeCounts.counts,
             }]
         },

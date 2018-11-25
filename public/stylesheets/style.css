@@ -12,6 +12,19 @@ body {
   size: large;
 }
 
+#user-content {
+  display: flex;
+  
+}
+
+#user-content > #viewport {
+  flex-grow: 2;
+}
+
+#word-cloud {
+  flex-shrink: 2;
+}
+
 a {
   color: #00B7FF;
 }

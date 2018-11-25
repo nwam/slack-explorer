@@ -105,7 +105,7 @@ function createChannelNodes(channels) {
 function createUserNodes(users) {
     return users.map( (user) => {
         const type = user.isAdmin ? "admin" : "user";
-        return createNode(user.userId, user.userName, type);
+        return createNode(user.id, user.name, type);
     });
 }
 
@@ -229,10 +229,6 @@ $.getJSON(`${serverUrl}/db/network`, (networkData) => {
         nodesArray = filteredNodes;
 
         console.log(`after selecting there are ${nodesArray.length} nodes`);
-        /*
-        edges = edges.reduce( (tempEdges, edge) => {
-
-        }, []);*/
     }
 
     const nodes = new vis.DataSet(nodesArray);

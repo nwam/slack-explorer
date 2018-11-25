@@ -269,6 +269,6 @@ export async function close(): Promise<void> {
     }
 }
 
-// findUsersInteractions().then( (result) => console.log(result));
+//findUsersInteractions().then( (result) => console.log(result));
 findUserTotals().then( (result) => console.log(result));
 // findChannelMessages("CDXKBM9N2").then( (r) => console.log(r));

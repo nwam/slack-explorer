@@ -95,6 +95,47 @@ export async function findChannelTotals(): Promise<any> {
     return result.toArray();
 }
 
+export async function findUsersInteractions(): Promise<any> {
+    if (! await isDbGood()) {
+        return;
+    }
+
+    const result = await client.db().collection("messages").aggregate([
+        {
+            $match : {
+                subtype : { $not : { $eq : "channel_join"} }
+            }
+        },
+        { 
+            $group : {
+                _id : {user: "$user", channel: "$channelID"},
+                userID : {$max: "$user"},
+                channelID : {$max: "$channelID"},
+                count : {$sum:1}
+            }
+        },
+        { 
+            $lookup : {
+                from: "users",
+                localField: "userID",
+                foreignField: "id",
+                as: "user"
+            }
+        },
+        { $unwind: "$user" }, 
+        { 
+            $project: 
+            { 
+                userID : 1,
+                channelID : 2,
+                count: 3,
+                user: {name:1, isAdmin:2}
+            }
+        }
+    ]);
+    return result.toArray();
+}
+
 export async function insertMessages(messages: IMessageData[]): Promise<void> {
     console.log("Inserting MessagesPage"); // , data);
     if (! await isDbGood()) {
@@ -142,4 +183,4 @@ export async function close(): Promise<void> {
     }
 }
 
-findChannelTotals().then( (result) => console.log(result));
+//findUsersInteractions().then( (result) => console.log(result));

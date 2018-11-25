@@ -57,7 +57,7 @@ router.get(`/getid/:${UNAME_KEY}`, async function(req: express.Request, res: exp
     return res.send(userid);
   }
   else {
-    return res.status(404).send("No user with name " + name);
+    return res.status(400).send("No user with name " + name);
   }
 });
 

@@ -353,3 +353,20 @@ $.getJSON(`${serverUrl}/db/network`, (networkData) => {
         });
 
 });
+
+function onSearch() {
+    const username = $("#search-input").val();
+    console.log("input username", username);
+    if (username == "") {
+      $("#search-output").text("Enter a username to look up");
+      return;
+    }
+
+    $.ajaxSetup({ timeout:1000 });
+    $.get(`${serverUrl}/getid/${username}`, (data) => {
+      window.location.href = "/?node=" + data
+    }).fail( (err) => {
+        console.error("get fail", err);
+        $("#search-output").text("Failed to find username " + username);
+    });
+  }

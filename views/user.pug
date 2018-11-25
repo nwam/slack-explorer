@@ -1,0 +1,12 @@
+extends layout
+
+block content
+  h1= title
+
+  canvas(id="chart" style="width: 100%; height: 100%; border: 1px solid lightgray;")
+
+append scripts
+  script.
+    window.nodeID = "#{nodeID}"
+  script(src='/js/user.js')
+

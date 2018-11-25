@@ -136,6 +136,26 @@ export async function findUsersInteractions(): Promise<any> {
     return result.toArray();
 }
 
+export async function findUserMessages(userId: string): Promise<any> {
+    if (! await isDbGood()) {
+        return;
+    }
+    
+    const result = await client.db().collection("messages").find(
+        {user : userId});
+    return result.toArray();
+}
+
+export async function findChannelMessages(channelId: string): Promise<any> {
+    if (! await isDbGood()) {
+        return;
+    }
+    
+    const result = await client.db().collection("messages").find(
+        {channelID : channelId});
+    return result.toArray();
+}
+
 export async function insertMessages(messages: IMessageData[]): Promise<void> {
     console.log("Inserting MessagesPage"); // , data);
     if (! await isDbGood()) {
@@ -184,3 +204,4 @@ export async function close(): Promise<void> {
 }
 
 //findUsersInteractions().then( (result) => console.log(result));
+//findChannelMessages("CDXKBM9N2").then( (r) => console.log(r));

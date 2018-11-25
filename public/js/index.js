@@ -15,6 +15,8 @@ getQueryStringParams = query => {
 
 function createNode(id, label, type) {
     let color;
+    let fontSize;
+    let size;
     switch(type){
         case "channel":
             color = {
@@ -29,10 +31,9 @@ function createNode(id, label, type) {
                     border: '#4D005B',
                 }
             };
-            font = {
-                size: 50,
-                color: 'white'
-            }
+
+            size = 75;
+            fontSize = 24;
             break;
         case "user":
             color = {
@@ -48,10 +49,9 @@ function createNode(id, label, type) {
                 }
             };
 
-            font = {
-                size: 10,
-                color: 'white'
-            }
+            size = 16;
+            fontSize = 12;
+
             break;
         case "admin":
             color = {
@@ -67,10 +67,9 @@ function createNode(id, label, type) {
                 }
             };
 
-            font = {
-                size: 10,
-                color: 'white'
-            }
+            size = 32;
+            fontSize = 18;
+
             break;
         default:
             color = "yellow";
@@ -80,7 +79,12 @@ function createNode(id, label, type) {
         id: id,
         label: label,
         color: color,
-        font: font,
+        font: {
+            size: fontSize,
+            color: "white"
+        },
+        size: size,
+        shape: "dot"
     };
 
     return node;
@@ -162,10 +166,15 @@ const options = {
         zoomView: true,
     },
     physics:{
+        // enabled: false,
         maxVelocity: 50,
         minVelocity: 0.5,
         stabilization: {
+<<<<<<< HEAD
             enabled: false,
+=======
+            enabled: false
+>>>>>>> 4e591984a90c58ac7a59208c299d75195821b8af
         },
         repulsion: {
             centralGravity: 0.9,

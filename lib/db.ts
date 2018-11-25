@@ -252,7 +252,7 @@ export async function findMessages(): Promise<IMessageData[]> {
         return;
     }
 
-    return client.db().collection(COLLECTION_CHANNELS).find({}).toArray();
+    return client.db().collection(COLLECTION_MSGS).find({}).toArray();
 }
 
 export async function insertUsers(users: IUser[]): Promise<void> {
@@ -313,6 +313,7 @@ export function countWords(messages: IMessageData[], topn = 250): any {
         });
     });
     const sortable = [];
+    console.log('occurences', occurrences);
     // tslint:disable-next-line:forin
     for (const word in occurrences) {
         sortable.push({
@@ -323,6 +324,7 @@ export function countWords(messages: IMessageData[], topn = 250): any {
     const sorted = sortable.sort( (oc1, oc2) => {
         return oc2.size - oc1.size;
     });
+    console.log('sorted', sorted);
     return sorted.slice(0, topn);
 }
 

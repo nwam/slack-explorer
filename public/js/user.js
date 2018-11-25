@@ -1,11 +1,18 @@
 serverUrl = 'http://localhost:3000';
 id = window.nodeID;
 targetWordSize = 10;
+route = `/db/u/${id}`;
 
-// CLOUD
-$.getJSON(`${serverUrl}/db/u/${id}`, (data) => {
+if (id == 0) {
+    route = '/db/overview/'
+}
+
+$.get(`${serverUrl}${route}`, (data) => {
+    // CLOUD
+    console.log("OG data:", data);
     const words = data.words;
     let avgWordSize = 0;
+    console.log(words);
     words.map( (w) => {avgWordSize+=w.size;});
     avgWordSize /= words.length;
     console.log(words);

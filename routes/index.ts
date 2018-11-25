@@ -25,6 +25,10 @@ indexRouter.get("/", async function(req: express.Request, res: express.Response,
   return res.render("index", { title: title });
 });
 
+indexRouter.get("/overview", async function(req: express.Request, res: express.Response, next: express.NextFunction){
+  return res.render("user", {title: "Overview", nodeID: 0});
+})
+
 indexRouter.get("/authcode", async function(req: express.Request, res: express.Response, next: express.NextFunction) {
   const code = req.query.code;
   console.log("auth code", code);

@@ -137,7 +137,7 @@ const options = {
             align: 'center',
         },
         shadow: {
-            enabled: true,
+            enabled: false,
             color: 'black',
             size: 20,
         },
@@ -165,7 +165,7 @@ const options = {
         maxVelocity: 50,
         minVelocity: 0.5,
         stabilization: {
-            enabled: true,
+            enabled: false,
         },
         repulsion: {
             centralGravity: 0.9,

@@ -36,11 +36,12 @@ router.get(`/db/u/:${NODE_ID_KEY}`, async function(req: express.Request, res: ex
   }
   const messages = await db.findEntityMessages(id, type);
   const words = db.countWords(messages);
+  console.log('words', words);
   const timeCounts = db.getTimeCounts(messages);
 
   return res.json({
-    words : await words,
-    timeCounts : await timeCounts
+    words : words,
+    timeCounts : timeCounts
   });
 
 });
@@ -59,6 +60,17 @@ router.get(`/getid/:${UNAME_KEY}`, async function(req: express.Request, res: exp
   else {
     return res.status(400).send("No user with name " + name);
   }
+});
+
+router.get("/db/overview", async function(req: express.Request, res: express.Response, next: express.NextFunction) {
+  const messages = await db.findMessages();
+  const words = db.countWords(messages);
+  const timeCounts = db.getTimeCounts(messages);
+
+  return res.json({
+    words : words,
+    timeCounts : timeCounts
+  });
 });
 
 export = router;

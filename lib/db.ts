@@ -335,7 +335,7 @@ export function getTimeCounts(messages: IMessageData[], inc = 600): any {
     const now = new Date().getTime() / 1000;
     const size = Math.ceil((now - minTime) / inc);
     const times = [...Array(size).keys()].map( (i) => {
-    return new Date(minTime + i * inc).toDateString();
+    return new Date(1000*(minTime + i * inc)).toDateString();
     });
 
     const msgCount = Array.apply(null, Array(size)).map(Number.prototype.valueOf, 0);

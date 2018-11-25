@@ -3,8 +3,11 @@ extends layout
 block content
   h1= title
   div(id='content' style="display: flex;")
-    div(id='word-cloud' )
-    canvas(id="chart" )
+    div(id='mini-network', style="flex: 0%;")
+    div(id='less-important-info', style="flex: 100%;")
+      div(id='word-cloud' )
+      div(id='chart-container')
+        canvas(id="chart", style="position: relative;" )
 
 append scripts
   script.

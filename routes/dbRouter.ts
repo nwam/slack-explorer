@@ -34,7 +34,6 @@ router.get(`/db/u/:${NODE_ID_KEY}`, async function(req: express.Request, res: ex
   if (channelFind) {
     type = "channel";
   }
-  console.log(type);
   const messages = await db.findEntityMessages(id, type);
   const words = db.countWords(messages);
   const timeCounts = db.getTimeCounts(messages);
@@ -44,6 +43,22 @@ router.get(`/db/u/:${NODE_ID_KEY}`, async function(req: express.Request, res: ex
     timeCounts : await timeCounts
   });
 
+});
+
+const UNAME_KEY = "username";
+router.get(`/getid/:${UNAME_KEY}`, async function(req: express.Request, res: express.Response, next: express.NextFunction) {
+  const name = req.params[UNAME_KEY];
+  if (name == null) {
+    return res.status(400).send("Must provide a username to get the ID for");
+  }
+  const userid = await db.findUserID(name);
+
+  if (userid != null) {
+    return res.send(userid);
+  }
+  else {
+    return res.status(404).send("No user with name " + name);
+  }
 });
 
 export = router;

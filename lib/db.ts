@@ -274,6 +274,17 @@ export async function findUser(userID: string): Promise<IUser> {
     return result;
 }
 
+export async function findUserID(username: string): Promise<string> {
+    if (! await isDbGood()) {
+        return;
+    }
+
+    const result = await client.db().collection(COLLECTION_USERS).findOne({ name: username });
+    const id = result.id;
+    console.log(`User with name ${username} has id ${id}`, result);
+    return id;
+}
+
 export async function close(): Promise<void> {
     if (client != null) {
         console.log("Closing db client");
@@ -347,4 +358,4 @@ export function getTimeCounts(messages: IMessageData[], inc = 600): any {
 // findUsersqInteractions().then( (result) => console.log(result));
 // findUserTotals().then( (result) => console.log(result));
 // findChannelMessages("CDXKBM9N2").then( (r) => console.log(countWords(r)));
-findChannelMessages("CDXKBM9N2").then( (r) => console.log(getTimeCounts(r)));
+// findChannelMessages("CDXKBM9N2").then( (r) => console.log(getTimeCounts(r)));

@@ -188,7 +188,7 @@ const options = {
 };
 
 function isConnectedTo(nodeID, otherNodeID, edges) {
-    return edges.find( (edge) => {
+    return null != edges.find( (edge) => {
         //console.log("edge", edge);
         // console.log("edge.from", edge.from, "edge.to", edge.from);
         // console.log("nodeID", nodeID, "otherNodeID", otherNodeID);
@@ -207,6 +207,7 @@ $.getJSON(`${serverUrl}/db/network`, (networkData) => {
 
     let nodesArray = channelNodes.concat(userNodes);
     const edgesArray = createEdges(networkData.interactions);
+    console.log("edges are", edgesArray);
 
     if (selectedNodeID != null) {
         // Find the user/channel with this ID
@@ -221,7 +222,11 @@ $.getJSON(`${serverUrl}/db/network`, (networkData) => {
         const filteredNodes = [];
         for (node of nodesArray) {
             // console.log("node", node);
-            if (filteredNodes.find( (node) => node.id === selectedNodeID) == null && (node.id === selectedNodeID || isConnectedTo(selectedNodeID, node.id, edgesArray))) {
+            if (filteredNodes.find( (n) => n.id === node.id) != null) {
+                // console.log("Node is already in filtered result", node);
+                continue;
+            }
+            if (node.id === selectedNodeID || isConnectedTo(selectedNodeID, node.id, edgesArray)) {
                 // console.log("Push node", node);
                 filteredNodes.push(node);
             }

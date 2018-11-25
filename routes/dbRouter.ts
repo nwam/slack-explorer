@@ -27,9 +27,15 @@ router.get("/db/network", async function(req: express.Request, res: express.Resp
     interactions : await interactions});
 });
 
-router.get(`/db/user/:${NODE_ID_KEY}`, async function(req: express.Request, res: express.Response, next: express.NextFunction) {
+router.get(`/db/u/:${NODE_ID_KEY}`, async function(req: express.Request, res: express.Response, next: express.NextFunction) {
   const userID = req.params[NODE_ID_KEY];
-  const words = db.countWords(await db.findUserMessages(userID));
+  let type = "user";
+  const channelFind = await db.findChannel(userID);
+  console.log(channelFind);
+  if (channelFind) {
+    type = "channel";
+  }
+  const words = db.countWords(await db.findEntityMessages(userID, type));
 
   return res.json({
     words : await words

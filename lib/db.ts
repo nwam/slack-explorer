@@ -10,7 +10,6 @@ const dbUrl = `mongodb://${DB_CREDS}${dbHost}:27017/${dbName}`;
 // tslint:disable-next-line:max-line-length
 const common_words : Set<string> = new Set(["the","of","and","a","to","in","is","you","that","it","he","was","for","on","are","as","with","his","they","I","at","be","this","have","from","or","one","had","by","word","but","not","what","all","were","we","when","your","can","said","there","use","an","each","which","she","do","how","their","if","will","up","other","about","out","many","then","them","these","so","some","her","would","make","like","him","into"]);
 
-
 const dbClient = new Mongo.MongoClient(dbUrl);
 
 let client: Mongo.MongoClient;
@@ -59,8 +58,7 @@ export async function findChannel(channelID: string): Promise<IChannel> {
         return;
     }
 
-    const result = await client.db().collection(COLLECTION_CHANNELS).findOne({ id: channelID });
-    console.log("Channel with ID " + channelID, result);
+    return client.db().collection(COLLECTION_CHANNELS).findOne({ id: channelID });
 }
 
 export async function findChannelTotals(): Promise<any> {
@@ -215,6 +213,15 @@ export async function findChannelMessages(channelId: string): Promise<any> {
     const result = await client.db().collection("messages").find(
         {channelID : channelId});
     return result.toArray();
+}
+
+export async function findEntityMessages(id: string, type: string): Promise<any> {
+    if (type === "channel") {
+        return findChannelMessages(id);
+    } else if (type === "user") {
+        return findUserMessages(id);
+    }
+    return null;
 }
 
 export async function insertMessage(message: IMessageData): Promise<void> {

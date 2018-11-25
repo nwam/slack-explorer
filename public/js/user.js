@@ -1,14 +1,15 @@
 serverUrl = 'http://localhost:3000';
-userId = window.nodeID;
+id = window.nodeID;
 
 // CLOUD
-$.getJSON(`${serverUrl}/db/user/${userId}`, (userData) => {
-    const userWords = userData.words;
-
+$.getJSON(`${serverUrl}/db/u/${id}`, (data) => {
+    const words = data.words;
+    console.log(words);
+    
     var fill = d3.scale.category20();
     var layout = d3.layout.cloud()
         .size([1000, 1000])
-        .words(userWords)
+        .words(words)
         .padding(5)
         .rotate(function() { return ~~(Math.random() * 2) * 90; })
         .font("Impact")

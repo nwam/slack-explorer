@@ -136,7 +136,6 @@ const options = {
         zoomView: true,
     },
     physics:{
-        enabled: false,
         maxVelocity: 50,
         minVelocity: 0.5,
         stabilization: {

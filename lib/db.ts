@@ -299,10 +299,11 @@ export function countWords(messages: IMessageData[], topn = 250): any {
         });
     });
     const sortable = [];
-    for (const word of occurrences) {
+    // tslint:disable-next-line:forin
+    for (const word in occurrences) {
         sortable.push({
             text: word,
-            size: occurrences[word as any]
+            size: occurrences[word]
         });
     }
     const sorted = sortable.sort( (oc1, oc2) => {
@@ -313,4 +314,4 @@ export function countWords(messages: IMessageData[], topn = 250): any {
 
 // findUsersqInteractions().then( (result) => console.log(result));
 // findUserTotals().then( (result) => console.log(result));
-findChannelMessages("CDXKBM9N2").then( (r) => console.log(countWords(r)));
+// findChannelMessages("CDXKBM9N2").then( (r) => console.log(countWords(r)));

@@ -201,7 +201,7 @@ $.getJSON(`${serverUrl}/db/network`, (networkData) => {
     const selectedNodeID = qs.node;
     console.log("qs", qs, "selectedNode", selectedNodeID);
 
-    console.log("networkdata", networkData);
+    //console.log("networkdata", networkData);
     const channelNodes = createChannelNodes(networkData.channels, selectedNodeID);
     const userNodes = createUserNodes(networkData.users, selectedNodeID);
 
@@ -214,9 +214,9 @@ $.getJSON(`${serverUrl}/db/network`, (networkData) => {
 
         const currentTitle = $("#title").html();
         $("#title").html(currentTitle + " - " + name);
-        console.log("user/channel name is " + name);
+        //console.log("user/channel name is " + name);
 
-        console.log(`Before selecting there are ${nodesArray.length} nodes`);
+        //console.log(`Before selecting there are ${nodesArray.length} nodes`);
 
         const filteredNodes = [];
         for (node of nodesArray) {
@@ -228,7 +228,7 @@ $.getJSON(`${serverUrl}/db/network`, (networkData) => {
         }
         nodesArray = filteredNodes;
 
-        console.log(`after selecting there are ${nodesArray.length} nodes`);
+        //console.log(`after selecting there are ${nodesArray.length} nodes`);
     }
 
     const nodes = new vis.DataSet(nodesArray);

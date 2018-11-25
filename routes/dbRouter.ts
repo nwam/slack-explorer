@@ -28,14 +28,15 @@ router.get("/db/network", async function(req: express.Request, res: express.Resp
 });
 
 router.get(`/db/u/:${NODE_ID_KEY}`, async function(req: express.Request, res: express.Response, next: express.NextFunction) {
-  const userID = req.params[NODE_ID_KEY];
+  const id = req.params[NODE_ID_KEY];
   let type = "user";
-  const channelFind = await db.findChannel(userID);
+  const channelFind = await db.findChannel(id);
   console.log(channelFind);
   if (channelFind) {
     type = "channel";
   }
-  const words = db.countWords(await db.findEntityMessages(userID, type));
+  console.log(type);
+  const words = db.countWords(await db.findEntityMessages(id, type));
 
   return res.json({
     words : await words

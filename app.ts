@@ -1,12 +1,28 @@
-import createError from "http-errors";
 import express from "express";
 import * as path from "path";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
+import io from "socket.io";
+import http from "http";
+import { normalizePort, onError } from "./lib/initFunctions";
 
 import indexRouter from "./routes/index";
+import dbRouter from "./routes/dbRouter";
 
 const app = express();
+const server = http.createServer(app);
+const port = normalizePort(process.env.PORT || "3000");
+
+app.set("port", port);
+server.listen(port);
+server.on("error", onError);
+server.on("listening", () => {
+  const addr = server.address();
+  const bind = typeof addr === "string"
+    ? "pipe " + addr
+    : "port " + addr.port;
+  console.log("Listening on " + bind);
+});
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -19,6 +35,17 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
+app.use("/", dbRouter);
+
+// tslint:disable-next-line:no-string-literal
+const socket = io(server);
+
+app.post("/newMsg", (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.log("newMsg body is", req.body);
+
+  socket.emit("newMsg", req.body);
+  return res.sendStatus(204);
+});
 
 // catch 404 and forward to error handler
 app.use(function(req: express.Request, res: express.Response, next: express.NextFunction) {

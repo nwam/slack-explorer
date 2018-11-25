@@ -362,8 +362,11 @@ function onSearch() {
       return;
     }
 
-    console.log("fuck time");
-    $.get(`${serverUrl}/getid/${username}`, function(data) {
-      window.location.href = "/?node=" + data;
+    $.ajaxSetup({ timeout:1000 });
+    $.get(`${serverUrl}/getid/${username}`, (data) => {
+      window.location.href = "/?node=" + data
+    }).fail( (err) => {
+        console.error("get fail", err);
+        $("#search-output").text("Failed to find username " + username);
     });
   }

@@ -323,16 +323,15 @@ export function getTimeCounts(messages: IMessageData[], inc = 600): any {
     const minTime = roundTo(Math.min(...messages.map( (m) => m.time)), inc);
     const now = new Date().getTime() / 1000;
     const size = Math.ceil((now - minTime) / inc);
-    const times = [...Array(size).keys()].map( (i) => minTime + i * inc);
+    const times = [...Array(size).keys()].map( (i) => {
+    return new Date(minTime + i * inc).toDateString();
+    });
 
     const msgCount = Array.apply(null, Array(size)).map(Number.prototype.valueOf, 0);
-    console.log(times[0], times[1], times[2]);
-    console.log(msgCount);
 
     messages.forEach( (msg) => {
         const msgRoundTime = roundTo(msg.time, inc);
         const i = Math.ceil((msgRoundTime - minTime) / inc);
-        console.log(i);
         msgCount[i] += 1;
     });
 

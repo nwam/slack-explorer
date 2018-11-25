@@ -9,18 +9,7 @@ $.getJSON(`${serverUrl}/db/u/${id}`, (data) => {
     words.map( (w) => {avgWordSize+=w.size;});
     avgWordSize /= words.length;
     console.log(words);
-    
-    var fill = d3.scale.category20();
-    var layout = d3.layout.cloud()
-        .size([1000, 1000])
-        .words(words)
-        .padding(5)
-        .rotate(function() { return ~~(Math.random() * 2) * 90; })
-        .font("Impact")
-        .fontSize(function(d) { return d.size*targetWordSize/avgWordSize; })
-        .on("end", draw);
 
-    layout.start();
 
     function draw(words) {
         d3.select("body").append("svg")
@@ -39,7 +28,19 @@ $.getJSON(`${serverUrl}/db/u/${id}`, (data) => {
             return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
         })
         .text(function(d) { return d.text; });
-    }	
+    }
+
+    var fill = d3.scale.category20();
+    var layout = d3.layout.cloud()
+        .size([1000, 1000])
+        .words(words)
+        .padding(5)
+        .rotate(function() { return ~~(Math.random() * 2) * 90; })
+        .font("Impact")
+        .fontSize(function(d) { return d.size*targetWordSize/avgWordSize; })
+        .on("end", draw);
+
+    layout.start();
 
     // CHART
     var ctx = document.getElementById('chart').getContext('2d');

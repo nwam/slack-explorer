@@ -106,7 +106,7 @@ export async function findUsersInteractions(): Promise<any> {
                 subtype : { $not : { $eq : "channel_join"} }
             }
         },
-        { 
+        {
             $group : {
                 _id : {user: "$user", channel: "$channelID"},
                 userID : {$max: "$user"},
@@ -114,7 +114,7 @@ export async function findUsersInteractions(): Promise<any> {
                 count : {$sum:1}
             }
         },
-        { 
+        {
             $lookup : {
                 from: "users",
                 localField: "userID",
@@ -122,10 +122,10 @@ export async function findUsersInteractions(): Promise<any> {
                 as: "user"
             }
         },
-        { $unwind: "$user" }, 
-        { 
-            $project: 
-            { 
+        { $unwind: "$user" },
+        {
+            $project:
+            {
                 userID : 1,
                 channelID : 2,
                 count: 3,
@@ -140,9 +140,10 @@ export async function findUserMessages(userId: string): Promise<any> {
     if (! await isDbGood()) {
         return;
     }
-    
+
     const result = await client.db().collection("messages").find(
-        {user : userId});
+        { user : userId }
+    );
     return result.toArray();
 }
 
@@ -150,10 +151,19 @@ export async function findChannelMessages(channelId: string): Promise<any> {
     if (! await isDbGood()) {
         return;
     }
-    
+
     const result = await client.db().collection("messages").find(
         {channelID : channelId});
     return result.toArray();
+}
+
+export async function insertMessage(message: IMessageData): Promise<void> {
+    if (! await isDbGood()) {
+        return;
+    }
+
+    const result = await client.db().collection(COLLECTION_MSGS).insertOne(message);
+    console.log(`Inserted ${result.insertedCount} (should be 1) message`);
 }
 
 export async function insertMessages(messages: IMessageData[]): Promise<void> {

@@ -8,8 +8,10 @@
     "copy-static": "cp -r views dist/ && cp -r public dist/"
   },
   "dependencies": {
+    "@slack/client": "^4.8.0",
     "@types/http-errors": "^1.6.1",
     "@types/morgan": "^1.7.35",
+    "@types/socket.io-client": "^1.4.32",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
     "express": "~4.16.0",
@@ -20,6 +22,7 @@
     "request": "^2.88.0",
     "request-promise-native": "^1.0.5",
     "socket.io": "^2.1.1",
+    "socket.io-client": "^2.1.1",
     "typescript": "^3.1.6"
   },
   "devDependencies": {

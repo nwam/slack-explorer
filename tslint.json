@@ -10,7 +10,7 @@
 		"ordered-imports": false,
 		"trailing-comma": false,
 		"typedef-whitespace": false,
-		"variable-name": [ true, "allow-leading-underscore", "allow-trailing-underscore" ],
+		"variable-name": [ true, "allow-leading-underscore", "allow-trailing-underscore", "allow-pascal-case" ],
 
 		// Below are my rules.
 		"await-promise": [

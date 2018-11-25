@@ -4,6 +4,8 @@ import cookieParser from "cookie-parser";
 import logger from "morgan";
 import io from "socket.io";
 import http from "http";
+
+import Rtm from "./lib/rtm";
 import { normalizePort, onError } from "./lib/initFunctions";
 
 import indexRouter from "./routes/index";
@@ -37,15 +39,9 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/", indexRouter);
 app.use("/", dbRouter);
 
-// tslint:disable-next-line:no-string-literal
-const socket = io(server);
-app.post("/newMsg", (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.log("newMsg body is", req.body);
+const serverSocket = io(server);
 
-  socket.emit("newMsg", req.body);
-  // pass this request onto the dbRouter
-  next();
-});
+Rtm.startRTM(serverSocket).then( () => console.log("RTM initialized in App"));
 
 // catch 404 and forward to error handler
 app.use(function(req: express.Request, res: express.Response, next: express.NextFunction) {

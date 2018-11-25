@@ -1,124 +1,5 @@
 serverUrl = 'http://localhost:3000';
 
-getQueryStringParams = query => {
-    return query
-        ? (/^[?#]/.test(query) ? query.slice(1) : query)
-            .split('&')
-            .reduce((params, param) => {
-                    let [key, value] = param.split('=');
-                    params[key] = value ? decodeURIComponent(value.replace(/\+/g, ' ')) : '';
-                    return params;
-                }, {}
-            )
-        : {}
-};
-
-function createNode(id, label, type) {
-    let color;
-    let fontSize;
-    let size;
-    switch(type){
-        case "channel":
-            color = {
-                border: '#4D005B',
-                background: "#7D0094",
-                highlight: {
-                    border: '#4D005B',
-                    background: '#7D0094',
-                },
-                hover: {
-                    background: '#7D0094',
-                    border: '#4D005B',
-                }
-            };
-
-            size = 75;
-            fontSize = 24;
-            break;
-        case "user":
-            color = {
-                border: '#350B62',
-                background: '#8057AD',
-                highlight: {
-                    border: '#350B62',
-                    background: '#8057AD',
-                },
-                hover: {
-                    background: '#8057AD',
-                    border: '#350B62',
-                }
-            };
-
-            size = 16;
-            fontSize = 12;
-
-            break;
-        case "admin":
-            color = {
-                border: '#004B4F',
-                background: '#008E95',
-                highlight: {
-                    border: '#004B4F',
-                    background: '#008E95',
-                },
-                hover: {
-                    background: '#008E95',
-                    border: '#004B4F',
-                }
-            };
-
-            size = 32;
-            fontSize = 18;
-
-            break;
-        default:
-            color = "yellow";
-    }
-
-    const node = {
-        id: id,
-        label: label,
-        color: color,
-        font: {
-            size: fontSize,
-            color: "white"
-        },
-        size: size,
-        shape: "dot"
-    };
-
-    return node;
-}
-
-function createEdge(from, to, width){
-    const edge = {
-        from: from,
-        to: to,
-        width: width,
-    };
-
-    return edge
-}
-
-function createChannelNodes(channels) {
-    return channels.map( (channel) => {
-        return createNode(channel.id, channel.name, 'channel');
-    });
-}
-
-function createUserNodes(users) {
-    return users.map( (user) => {
-        const type = user.isAdmin ? "admin" : "user";
-        return createNode(user.id, user.name, type);
-    });
-}
-
-function createEdges(interactions) {
-    return interactions.map ( (i) => {
-        return createEdge(i.userId, i.channelId, i.count);
-    });
-}
-
 const options = {
     layout: { improvedLayout: false },
     nodes:{
@@ -192,13 +73,176 @@ const options = {
     },
 };
 
-function isConnectedTo(nodeID, otherNodeID, edges) {
-    return null != edges.find( (edge) => {
-        //console.log("edge", edge);
-        // console.log("edge.from", edge.from, "edge.to", edge.from);
-        // console.log("nodeID", nodeID, "otherNodeID", otherNodeID);
-        return (edge.from === nodeID && edge.to === otherNodeID) || (edge.from === otherNodeID && edge.to === nodeID)
+getQueryStringParams = query => {
+    return query
+        ? (/^[?#]/.test(query) ? query.slice(1) : query)
+            .split('&')
+            .reduce((params, param) => {
+                    let [key, value] = param.split('=');
+                    params[key] = value ? decodeURIComponent(value.replace(/\+/g, ' ')) : '';
+                    return params;
+                }, {}
+            )
+        : {}
+};
+
+function createNode(id, label, type) {
+    // console.log("label", label, "type", type);
+    let color;
+    let fontSize;
+    let size;
+    switch(type){
+        case "channel":
+            color = {
+                border: '#4D005B',
+                background: "#7D0094",
+                highlight: {
+                    border: '#4D005B',
+                    background: '#7D0094',
+                },
+                hover: {
+                    background: '#7D0094',
+                    border: '#4D005B',
+                }
+            };
+
+            size = 75;
+            fontSize = 24;
+            break;
+        case "group":
+            color = {
+                border: '#4D005B',
+                background: "green",
+                highlight: {
+                    border: '#4D005B',
+                    background: 'green',
+                },
+                hover: {
+                    background: 'green',
+                    border: '4D005B',
+                }
+            };
+
+            size = 65;
+            fontSize = 20;
+            break;
+        case "user":
+            color = {
+                border: '#350B62',
+                background: '#8057AD',
+                highlight: {
+                    border: '#350B62',
+                    background: '#8057AD',
+                },
+                hover: {
+                    background: '#8057AD',
+                    border: '#350B62',
+                }
+            };
+
+            size = 16;
+            fontSize = 12;
+
+            break;
+        case "admin":
+            color = {
+                border: '#004B4F',
+                background: '#008E95',
+                highlight: {
+                    border: '#004B4F',
+                    background: '#008E95',
+                },
+                hover: {
+                    background: '#008E95',
+                    border: '#004B4F',
+                }
+            };
+
+            size = 32;
+            fontSize = 18;
+
+            break;
+        default:
+            color = "yellow";
+    }
+
+    const node = {
+        id: id,
+        label: label,
+        color: color,
+        font: {
+            size: fontSize,
+            color: "white"
+        },
+        size: size,
+        shape: "dot"
+    };
+
+    return node;
+}
+
+const WIDTH_FLOOR = 15;
+
+function createEdge(from, to, width){
+    let label = "";
+    if (width >= WIDTH_FLOOR) {
+        label = "" + width;
+    }
+    const edge = {
+        from: from,
+        to: to,
+        width: width,
+        label: label
+    };
+
+    return edge;
+}
+
+function createChannelNodes(channels) {
+    return channels.map( (channel) => {
+        console.log("channel", channel);
+        const type = channel.isPrivate === true ? "group" : "channel";
+        let name = channel.isPrivate === true ? channel.name : "#" + channel.name;
+        if (name.startsWith("mpdm-")) {
+            name = name.substring(5);
+        }
+        return createNode(channel.id, name, type);
     });
+}
+
+function createUserNodes(users) {
+    return users.map( (user) => {
+        const type = user.isAdmin ? "admin" : "user";
+        return createNode(user.id, user.name, type);
+    });
+}
+
+function createEdges(interactions) {
+
+    return interactions.map ( (i) => {
+        let width = i.count;
+
+        if (width > 30 && i.channelId === "GEAS9313N") {
+            // lol
+            width = WIDTH_FLOOR;
+        }
+
+        return createEdge(i.userId, i.channelId, width);
+    });
+}
+
+function getEdges(nodeID, otherNodeID, edges, dbug=false) {
+    const filter = (edge) => {
+        // if (dbug) {
+            // console.log(`checkign edge from ${edge.from} to ${edge.to}, nodes are ${nodeID} and ${otherNodeID}`);
+        // }
+        const pass = (edge.from === nodeID && edge.to === otherNodeID) || (edge.from === otherNodeID && edge.to === nodeID);
+        // if (pass) {
+        //     console.log("Edge", edge, "matches nodes", nodeID, otherNodeID);
+        // }
+        return pass;
+    };
+    return edges.get({ filter: filter });
 }
 
 $.getJSON(`${serverUrl}/db/network`, (networkData) => {
@@ -212,7 +256,7 @@ $.getJSON(`${serverUrl}/db/network`, (networkData) => {
 
     let nodesArray = channelNodes.concat(userNodes);
     const edgesArray = createEdges(networkData.interactions);
-    console.log("edges are", edgesArray);
+    let edges = new vis.DataSet(edgesArray);
 
     if (selectedNodeID != null) {
         // Find the user/channel with this ID
@@ -228,10 +272,12 @@ $.getJSON(`${serverUrl}/db/network`, (networkData) => {
         for (node of nodesArray) {
             // console.log("node", node);
             if (filteredNodes.find( (n) => n.id === node.id) != null) {
-                // console.log("Node is already in filtered result", node);
+                console.log("Node is already in filtered result", node);
                 continue;
             }
-            if (node.id === selectedNodeID || isConnectedTo(selectedNodeID, node.id, edgesArray)) {
+            const existingEdges = getEdges(selectedNodeID, node.id, edges);
+            // console.log("EE", existingEdges);
+            if (node.id === selectedNodeID || existingEdges.length > 0) {
                 // console.log("Push node", node);
                 filteredNodes.push(node);
             }
@@ -242,7 +288,6 @@ $.getJSON(`${serverUrl}/db/network`, (networkData) => {
     }
 
     const nodes = new vis.DataSet(nodesArray);
-    const edges = new vis.DataSet(edgesArray);
 
     // create a network
     const container = document.getElementById('viewport');
@@ -269,5 +314,41 @@ $.getJSON(`${serverUrl}/db/network`, (networkData) => {
             window.location.href = "?node=" + clickedNodeID;
         }
     });
+
+    const EVENT_MESSAGE = "message";
+    const EVENT_NEW_RXN = "reaction_added";
+    const EVENT_RXN_REMOVED = "reaction_removed"
+    window.socket
+        .on(EVENT_MESSAGE, (event) => {
+            console.log("NEW MESSAGE", event);
+
+            const existingEdge = getEdges(event.user, event.channelID, edges, true)[0];
+            if (existingEdge == null) {
+                console.log("adding new edge, edges before", edges);
+                edges.add({
+                    from: event.user,
+                    to: event.channel,
+                    width: 1
+                });
+                console.log("edges after insert", edges);
+            }
+            else {
+                const newWidth =  Number(existingEdge.width) + 1;
+                const newLabel = newWidth > WIDTH_FLOOR ? newWidth.toString() : "";
+                edges.update({
+                    id: existingEdge.id,
+                    from: existingEdge.from,
+                    to: existingEdge.to,
+                    width: newWidth,
+                    label: newLabel
+                });
+            }
+        })
+        .on(EVENT_NEW_RXN, (event) => {
+            console.log("NEW REACTION WOW", event);
+        })
+        .on(EVENT_RXN_REMOVED, (event) => {
+            console.log("Reaction gone, who cares tho", event);
+        });
 
 });

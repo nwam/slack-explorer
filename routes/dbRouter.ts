@@ -22,7 +22,7 @@ router.get("/db/network", async function(req: express.Request, res: express.Resp
   const interactions = db.findUsersInteractions();
 
   return res.json({
-    channels : await channels, 
+    channels : await channels,
     users : await users,
     interactions : await interactions});
 });
@@ -31,11 +31,11 @@ router.get(`/db/u/:${NODE_ID_KEY}`, async function(req: express.Request, res: ex
   const id = req.params[NODE_ID_KEY];
   let type = "user";
   const channelFind = await db.findChannel(id);
-  console.log(channelFind);
+  // console.log(channelFind);
   if (channelFind) {
     type = "channel";
   }
-  console.log(type);
+  // console.log(type);
   const words = db.countWords(await db.findEntityMessages(id, type));
 
   return res.json({

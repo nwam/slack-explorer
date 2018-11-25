@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "watch-node": "nodemon --watch . dist/app.js",
+    "watch-node": "nodemon --ignore 'public/' --watch . dist/app.js",
     "watch-ts": "tsc -w",
     "copy-static": "cp -r views dist/ && cp -r public dist/"
   },

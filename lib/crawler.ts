@@ -7,6 +7,7 @@ const baseUrl = "https://slack.com/api/";
 export interface IChannel {
     id: string;
     name: string;
+    isPrivate: boolean;
 }
 
 export interface IMessageData {
@@ -73,7 +74,8 @@ async function getList(family: string) : Promise<IChannel[]>{
     return channels.map( (channel: any): IChannel => {
         return {
             id: channel.id,
-            name: channel.name
+            name: channel.name,
+            isPrivate: family === "groups"
         };
     });
 }
@@ -135,7 +137,8 @@ async function getMessages(channel: IChannel, family: string, startTime?: number
 
 async function fetchChannels(): Promise<void> {
     const channels = await getChannels();
-    db.insertChannels(channels);
+    // console.log("here are the channels", channels);
+    await db.insertChannels(channels);
     const proms: Array<Promise<any>> = [];
     for (const channel of channels) {
         proms.push(getChannelMessages(channel));
@@ -146,6 +149,8 @@ async function fetchChannels(): Promise<void> {
 
 async function fetchGroups(): Promise<void> {
     const groups = await getGroups();
+    // console.log("here are the groups", groups);
+    await db.insertChannels(groups);
     const proms: Array<Promise<any>> = [];
     for (const group of groups) {
         proms.push(getGroupMessages(group));

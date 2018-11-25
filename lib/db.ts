@@ -90,16 +90,19 @@ export async function findChannelTotals(): Promise<any> {
             $project:
             {
                 count: 1,
-                channel: {name: 1}
+                channel: {name: 1, isPrivate: 1}
+
             }
         }
     ]);
     const result = await resultCursor.toArray();
+    // console.log("RESULT", result);
     return result.map( (item) => {
         return {
             id : item._id,
-            name : `#${item.channel.name}`,
-            count : item.count
+            name : `${item.channel.name}`,
+            count : item.count,
+            isPrivate: item.channel.isPrivate
         };
     });
 }

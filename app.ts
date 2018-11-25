@@ -39,12 +39,12 @@ app.use("/", dbRouter);
 
 // tslint:disable-next-line:no-string-literal
 const socket = io(server);
-
 app.post("/newMsg", (req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.log("newMsg body is", req.body);
 
   socket.emit("newMsg", req.body);
-  return res.sendStatus(204);
+  // pass this request onto the dbRouter
+  next();
 });
 
 // catch 404 and forward to error handler

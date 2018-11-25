@@ -37,41 +37,20 @@ $.getJSON(`${serverUrl}/db/user/${userId}`, (userData) => {
     }	
 });
 // CHART
-var ctx = document.getElementById('chart').getContext('2d');
-var chart = new Chart(ctx, {
-    // The type of chart we want to create
-    type: 'line',
+var container = document.getElementById('chart');
+var items = [
+    {x: '2014-06-11', y: 10},
+    {x: '2014-06-12', y: 25},
+    {x: '2014-06-13', y: 30},
+    {x: '2014-06-14', y: 10},
+    {x: '2014-06-15', y: 15},
+    {x: '2014-06-16', y: 30}
+];
 
-    // The data for our dataset
-    data: {
-        datasets: [{
-            label: "My First dataset",
-            backgroundColor: 'rgb(255, 99, 132)',
-            borderColor: 'rgb(255, 99, 132)',
-            data: [{
-                x: 0,
-                y: 0
-            },{
-                x: 3,
-                y: 1
-            },{
-                x: 8,
-                y: 2
-            },{
-                x: 9,
-                y: 3
-            }]
-        }]
-    },
-    options: {
-        scales: {
-            xAxes: [{
-                ticks: {
-                    min: 0,
-                    max: 10,
-                }
-            }]
-        },
-        responsive: true,
-    }
-});
+var dataset = new vis.DataSet(items);
+var options = {
+    start: '2014-06-10',
+    end: '2014-06-18'
+};
+var Graph2d = new vis.Graph2d(container, dataset, options);
+

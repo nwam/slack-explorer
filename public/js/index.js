@@ -18,38 +18,58 @@ function createNode(id, label, type) {
     switch(type){
         case "channel":
             color = {
-                border: '#5d478b',
-                background: 'rgba(165, 107, 223, 1)',
+                border: '#4D005B',
+                background: "#7D0094",
                 highlight: {
-                    border: '#5d478b',
-                    background: 'rgba(165, 107, 223, 0.7)',
+                    border: '#4D005B',
+                    background: '#7D0094',
                 },
                 hover: {
-                    background: 'rgba(165, 107, 223, 0.7)',
-                    border: '#5d478b',
+                    background: '#7D0094',
+                    border: '#4D005B',
                 }
-            },
+            };
             font = {
-                size: 20,
+                size: 35,
                 color: 'white'
             }
             break;
         case "user":
             color = {
-                border: '#4f4f4f',
-                background: '#949494',
+                border: '#350B62',
+                background: '#8057AD',
                 highlight: {
-                    border: '#4f4f4f',
-                    background: '#adadad',
+                    border: '#350B62',
+                    background: '#8057AD',
                 },
                 hover: {
-                    background: '#adadad',
-                    border: '#4f4f4f',
+                    background: '#8057AD',
+                    border: '#350B62',
                 }
-            },
+            };
+
             font = {
-                size: 15,
-                color: '#4f4f4f'
+                size: 10,
+                color: 'white'
+            }
+            break;
+        case "admin":
+            color = {
+                border: '#004B4F',
+                background: '#008E95',
+                highlight: {
+                    border: '#004B4F',
+                    background: '#008E95',
+                },
+                hover: {
+                    background: '#008E95',
+                    border: '#004B4F',
+                }
+            };
+
+            font = {
+                size: 10,
+                color: 'white'
             }
             break;
         default:
@@ -84,7 +104,8 @@ function createChannelNodes(channels) {
 
 function createUserNodes(users) {
     return users.map( (user) => {
-        return createNode(user.id, user.name, 'user');
+        const type = user.isAdmin ? "admin" : "user";
+        return createNode(user.userId, user.userName, type);
     });
 }
 
@@ -98,7 +119,7 @@ const options = {
     layout: { improvedLayout: false },
     nodes:{
         borderWidth: 1,
-        borderWidthSelected: 3,
+        borderWidthSelected: 2,
         color: {
           border: '#2B7CE9',
           background: '#97C2FC',
@@ -114,6 +135,11 @@ const options = {
             face: 'arial',
             background: 'none',
             align: 'center',
+        },
+        shadow: {
+            enabled: true,
+            color: 'black',
+            size: 20,
         },
     },
     interaction:{
@@ -136,8 +162,7 @@ const options = {
         zoomView: true,
     },
     physics:{
-        enabled: false,
-        maxVelocity: 50,
+        maxVelocity: 10,
         minVelocity: 0.5,
         stabilization: {
             enabled: false,
@@ -145,20 +170,22 @@ const options = {
         repulsion: {
             centralGravity: 0.9,
             springLength: 300,
-            springConstant: 0.03,
+            springConstant: 4,
             nodeDistance: 35,
             damping: 0.09,
         },
+        timestep: 1,
     },
     edges:{
         width: 5,
         color: {
             color:'#848484',
-            opacity:1.0,
-            inherit: 'from',
+            opacity:0.5,
+            highlight: '#D845FF',
+            hover: '#D845FF',
           },
-        length: 200,
-    }
+        length: 500,
+    },
 };
 
 function isConnectedTo(nodeID, otherNodeID, edges) {

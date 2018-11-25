@@ -14,6 +14,7 @@ export interface IMessageData {
     user: string;
     text: string;
     time: number;
+    subtype?: string;
 
     threadID?: number;
     replyCount?: number;
@@ -107,6 +108,7 @@ async function getMessages(channel: IChannel, family: string, startTime?: number
                 user: m.user,
                 text: m.text,
                 time: m.ts,
+                subtype: m.subtype,
 
                 threadID: m.thread_ts,
                 replyCount: m.reply_count,

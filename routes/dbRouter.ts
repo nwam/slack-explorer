@@ -15,4 +15,15 @@ router.get("/db/example", async function(req: express.Request, res: express.Resp
   return res.json(example);
 });
 
+router.get("/db/network", async function(req: express.Request, res: express.Response, next: express.NextFunction) {
+  const channels = db.findChannelTotals();
+  const users = db.findUserTotals();
+  const interactions = db.findUsersInteractions();
+  
+  return res.json({
+    channels : await channels, 
+    users : await users,
+    interactions : await interactions});
+});
+
 export = router;

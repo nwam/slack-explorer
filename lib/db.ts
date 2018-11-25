@@ -64,7 +64,7 @@ export async function findChannelTotals(): Promise<any> {
         return;
     }
 
-    const result = await client.db().collection("messages").aggregate([
+    const resultCursor = await client.db().collection("messages").aggregate([
         {
             $group:
             {
@@ -92,7 +92,54 @@ export async function findChannelTotals(): Promise<any> {
             }
         }
     ]);
-    return result.toArray();
+    const result = await resultCursor.toArray();
+    return result.map( (item) => {return {
+        channelId : item._id,
+        channelName : `#${item.channel.name}`,
+        count : item.count
+    }});
+}
+
+export async function findUserTotals(): Promise<any> {
+    if (! await isDbGood()) {
+        return;
+    }
+
+    const resultCursor = await client.db().collection("messages").aggregate([
+        {
+            $group:
+            {
+                _id: "$user",
+                count: { $sum: 1 }
+            }
+        },
+        {
+            $lookup:
+            {
+                from: "users",
+                localField: "_id",
+                foreignField: "id",
+                as: "user"
+            }
+        },
+        {
+            $unwind: "$user"
+        },
+        {
+            $project:
+            {
+                count: 1,
+                user: {name: 1, isAdmin: 1}
+            }
+        }
+    ]);
+    const result = await resultCursor.toArray();
+    return result.map( (item) => {return {
+        userId : item._id,
+        userName : item.user.name,
+        isAdmin : item.user.isAdmin,
+        count : item.count
+    }});
 }
 
 export async function findUsersInteractions(): Promise<any> {
@@ -100,7 +147,7 @@ export async function findUsersInteractions(): Promise<any> {
         return;
     }
 
-    const result = await client.db().collection("messages").aggregate([
+    const resultCursor = await client.db().collection("messages").aggregate([
         {
             $match : {
                 subtype : { $not : { $eq : "channel_join"} }
@@ -127,13 +174,18 @@ export async function findUsersInteractions(): Promise<any> {
             $project: 
             { 
                 userID : 1,
-                channelID : 2,
-                count: 3,
-                user: {name:1, isAdmin:2}
+                channelID : 1,
+                count: 1,
+                user: {name:1}
             }
         }
     ]);
-    return result.toArray();
+    const result = await resultCursor.toArray();
+    return result.map( (item) => { return {
+        userId : item.userID,
+        channelId : item.channelID,
+        count : item.count,
+    }});
 }
 
 export async function findUserMessages(userId: string): Promise<any> {
@@ -204,4 +256,5 @@ export async function close(): Promise<void> {
 }
 
 //findUsersInteractions().then( (result) => console.log(result));
+findUserTotals().then( (result) => console.log(result));
 //findChannelMessages("CDXKBM9N2").then( (r) => console.log(r));

@@ -1,11 +1,28 @@
 import express from "express";
-import request from "request-promise-native";
+import * as db from "../lib/db";
 
 export const indexRouter = express.Router();
 
 /* GET home page. */
-indexRouter.get("/", function(req: express.Request, res: express.Response, next: express.NextFunction) {
-  res.render("index", { title: "Express" });
+indexRouter.get("/", async function(req: express.Request, res: express.Response, next: express.NextFunction) {
+  const title = "Network";
+  /*
+  const nodeQp = req.query.node;
+  console.log("nodeqp", nodeQp);
+  if (nodeQp) {
+    const user = await db.findUser(nodeQp);
+    console.log("finduser result", user);
+    if (user != null) {
+      title = user.name;
+      if (user.statusEmoji != null) {
+        title += " " + user.statusEmoji;
+      }
+      if (user.statusText != null) {
+        title += " " + user.statusText;
+      }
+    }
+  }*/
+  return res.render("index", { title: title });
 });
 
 indexRouter.get("/authcode", async function(req: express.Request, res: express.Response, next: express.NextFunction) {

@@ -261,6 +261,7 @@ export async function findUser(userID: string): Promise<IUser> {
 
     const result = await client.db().collection(COLLECTION_USERS).findOne({ id: userID });
     console.log("User with ID " + userID, result);
+    return result;
 }
 
 export async function close(): Promise<void> {
@@ -291,10 +292,10 @@ export function countWords(messages: IMessageData[], topn = 250): any {
         });
     });
     const sortable = [];
-    for (let word in occurrences) {
+    for (const word of occurrences) {
         sortable.push({
             text: word,
-            size: occurrences[word]
+            size: occurrences[word as any]
         });
     }
     const sorted = sortable.sort( (oc1, oc2) => {
@@ -303,6 +304,6 @@ export function countWords(messages: IMessageData[], topn = 250): any {
     return sorted.slice(0, topn);
 }
 
-//findUsersqInteractions().then( (result) => console.log(result));
-//findUserTotals().then( (result) => console.log(result));
+// findUsersqInteractions().then( (result) => console.log(result));
+// findUserTotals().then( (result) => console.log(result));
 findChannelMessages("CDXKBM9N2").then( (r) => console.log(countWords(r)));

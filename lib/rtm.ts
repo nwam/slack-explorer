@@ -19,6 +19,8 @@ export default class Rtm {
             // tslint:disable-next-line:no-var-requires no-require-imports
             const { RTMClient } = require("@slack/client");
 
+
+            return resolve();
             const rtm = new RTMClient(Config.token);
             console.log("RTM starting up I hope!");
             rtm.start();

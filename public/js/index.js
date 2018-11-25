@@ -1,5 +1,18 @@
 serverUrl = 'http://localhost:3000';
 
+getQueryStringParams = query => {
+    return query
+        ? (/^[?#]/.test(query) ? query.slice(1) : query)
+            .split('&')
+            .reduce((params, param) => {
+                    let [key, value] = param.split('=');
+                    params[key] = value ? decodeURIComponent(value.replace(/\+/g, ' ')) : '';
+                    return params;
+                }, {}
+            )
+        : {}
+};
+
 function createNode(id, label, type) {
     let color;
     switch(type){
@@ -81,7 +94,8 @@ function createEdges(interactions) {
     });
 }
 
-var options = {
+const options = {
+    layout: { improvedLayout: false },
     nodes:{
         borderWidth: 1,
         borderWidthSelected: 3,
@@ -122,6 +136,7 @@ var options = {
         zoomView: true,
     },
     physics:{
+        enabled: false,
         maxVelocity: 50,
         minVelocity: 0.5,
         stabilization: {
@@ -146,27 +161,77 @@ var options = {
     }
 };
 
+function isConnectedTo(nodeID, otherNodeID, edges) {
+    return edges.find( (edge) => {
+        //console.log("edge", edge);
+        // console.log("edge.from", edge.from, "edge.to", edge.from);
+        // console.log("nodeID", nodeID, "otherNodeID", otherNodeID);
+        return (edge.from === nodeID && edge.to === otherNodeID) || (edge.from === otherNodeID && edge.to === nodeID)
+    });
+}
+
 $.getJSON(`${serverUrl}/db/network`, (networkData) => {
-    const channelNodes = createChannelNodes(networkData.channels);
-    const userNodes = createUserNodes(networkData.users);
-    const nodes = new vis.DataSet(channelNodes.concat(userNodes));
-    const edges = new vis.DataSet(createEdges(networkData.interactions));
+    const qs = getQueryStringParams(window.location.search.substr(1));
+    const selectedNodeID = qs.node;
+    console.log("qs", qs, "selectedNode", selectedNodeID);
+
+    const channelNodes = createChannelNodes(networkData.channels, selectedNodeID);
+    const userNodes = createUserNodes(networkData.users, selectedNodeID);
+
+    let nodesArray = channelNodes.concat(userNodes);
+    const edgesArray = createEdges(networkData.interactions);
+
+    if (selectedNodeID != null) {
+        console.log("users are", networkData.users);
+        const name = networkData.find( (user) => user.userId === selectedNodeID).userName;
+        const currentTitle = $("#title").html();
+        $("#title").html(currentTitle + " - " + name);
+        console.log("Username is " + name);
+
+        console.log(`Before selecting there are ${nodesArray.length} nodes`);
+
+        const filteredNodes = [];
+        for (node of nodesArray) {
+            // console.log("node", node);
+            if (node.id === selectedNodeID || isConnectedTo(selectedNodeID, node.id, edgesArray)) {
+                console.log("Push node", node);
+                filteredNodes.push(node);
+            }
+        }
+        nodesArray = filteredNodes;
+
+        console.log("nodesarray", nodesArray);
+
+        console.log(`after selecting there are ${nodesArray.length} nodes`);
+        /*
+        edges = edges.reduce( (tempEdges, edge) => {
+
+        }, []);*/
+    }
+
+    const nodes = new vis.DataSet(nodesArray);
+    const edges = new vis.DataSet(edgesArray);
 
     // create a network
-    var container = document.getElementById('viewport');
+    const container = document.getElementById('viewport');
 
     // provide the data in the vis format
-    var data = {
+    const data = {
         nodes: nodes,
         edges: edges
     };
 
     // initialize your network!
-    var network = new vis.Network(container, data, options);
+    const network = new vis.Network(container, data, options);
 
-    network.on("doubleClick", function (event) {
+    network.on("doubleClick", (event) => {
         const clickedNodeID = event.nodes[0];
         window.location.href = "/u/" + clickedNodeID;
+    });
+
+    network.on("click", (event) => {
+        const clickedNodeID = event.nodes[0];
+        window.location.href = "?node=" + clickedNodeID;
     });
 
 });

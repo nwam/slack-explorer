@@ -59,6 +59,32 @@ export async function findChannel(channelID: string): Promise<IChannel> {
     console.log("Channel with ID " + channelID, result);
 }
 
+export async function findChannelTotals(): Promise<any> {
+    if (! await isDbGood()) {
+        return;
+    }
+
+    const result = await client.db().collection('messages').aggregate([
+        { 
+            "$group" : 
+            {_id:"$channelID", count:{$sum:1}}
+        }, 
+        { 
+            $lookup: 
+            {from: 'channels', localField: '_id', foreignField: "id", as: "channel"}
+        }, 
+        { $unwind: "$channel" }, 
+        { 
+            $project: 
+            { 
+                count:1,
+                channel: {name:1}
+            }
+        }
+    ])
+    return result.toArray();
+}
+
 export async function insertMessages(messages: IMessageData[]): Promise<void> {
     console.log("Inserting MessagesPage"); // , data);
     if (! await isDbGood()) {
@@ -105,4 +131,3 @@ export async function close(): Promise<void> {
         console.log("No db connection to close");
     }
 }
-

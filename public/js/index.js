@@ -165,13 +165,13 @@ const options = {
         maxVelocity: 50,
         minVelocity: 0.5,
         stabilization: {
-            enabled: false,
+            enabled: true,
         },
         repulsion: {
             centralGravity: 0.9,
             springLength: 300,
             springConstant: 0.03,
-            nodeDistance: 35,
+            nodeDistance: 40,
             damping: 0.09,
         },
     },
@@ -253,12 +253,16 @@ $.getJSON(`${serverUrl}/db/network`, (networkData) => {
 
     network.on("doubleClick", (event) => {
         const clickedNodeID = event.nodes[0];
-        window.location.href = "/u/" + clickedNodeID;
+        if (clickedNodeID != null) {
+            window.location.href = "/u/" + clickedNodeID;
+        }
     });
 
     network.on("click", (event) => {
         const clickedNodeID = event.nodes[0];
-        window.location.href = "?node=" + clickedNodeID;
+        if (clickedNodeID != null) {
+            window.location.href = "?node=" + clickedNodeID;
+        }
     });
 
 });

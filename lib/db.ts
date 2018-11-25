@@ -315,6 +315,37 @@ export function countWords(messages: IMessageData[], topn = 250): any {
     return sorted.slice(0, topn);
 }
 
+function roundTo(n: number, inc: number){
+    return Math.ceil(n / inc) * inc;
+}
+
+export function getTimeCounts(messages: IMessageData[], inc = 600): any {
+    const minTime = roundTo(Math.min(...messages.map( (m) => m.time)), inc);
+    const now = new Date().getTime() / 1000;
+    const size = Math.ceil((now - minTime) / inc);
+    const times = [...Array(size).keys()].map( (i) => minTime + i * inc);
+
+    const msgCount = Array.apply(null, Array(size)).map(Number.prototype.valueOf, 0);
+    console.log(times[0], times[1], times[2]);
+    console.log(msgCount);
+
+    messages.forEach( (msg) => {
+        const msgRoundTime = roundTo(msg.time, inc);
+        const i = Math.ceil((msgRoundTime - minTime) / inc);
+        console.log(i);
+        msgCount[i] += 1;
+    });
+
+    let total = 0;
+    msgCount.forEach( (count, i) => {
+        total += count;
+        msgCount[i] = total;
+    });
+
+    return {times: times, counts: msgCount};
+}
+
 // findUsersqInteractions().then( (result) => console.log(result));
 // findUserTotals().then( (result) => console.log(result));
 // findChannelMessages("CDXKBM9N2").then( (r) => console.log(countWords(r)));
+findChannelMessages("CDXKBM9N2").then( (r) => console.log(getTimeCounts(r)));

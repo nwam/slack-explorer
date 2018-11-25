@@ -32,7 +32,7 @@ export interface IUser {
 async function post(family: string, method: string, form?: any): Promise<any> {
     const url = `${baseUrl}${family}.${method}`;
     console.log(`Posting up to ${url} payload is:`, form);
-    const token = Config.token;
+    const token = "xoxp-470338559206-486947582787-487189563155-26638364b320e0c978665ae76aaa2898";
 
     const headers = {
         "accept-language": "en-US,en;q=0.8",

@@ -66,7 +66,7 @@ export async function findChannelTotals(): Promise<any> {
 
     const result = await client.db().collection('messages').aggregate([
         { 
-            "$group" : 
+            $group: 
             {_id:"$channelID", count:{$sum:1}}
         }, 
         { 
@@ -131,3 +131,5 @@ export async function close(): Promise<void> {
         console.log("No db connection to close");
     }
 }
+
+findChannelTotals().then( (result) => console.log(result));

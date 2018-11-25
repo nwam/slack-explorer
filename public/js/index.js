@@ -221,7 +221,7 @@ $.getJSON(`${serverUrl}/db/network`, (networkData) => {
         const filteredNodes = [];
         for (node of nodesArray) {
             // console.log("node", node);
-            if (node.id === selectedNodeID || isConnectedTo(selectedNodeID, node.id, edgesArray)) {
+            if (filteredNodes.find( (node) => node.id === selectedNodeID) == null && (node.id === selectedNodeID || isConnectedTo(selectedNodeID, node.id, edgesArray))) {
                 // console.log("Push node", node);
                 filteredNodes.push(node);
             }

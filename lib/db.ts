@@ -93,11 +93,13 @@ export async function findChannelTotals(): Promise<any> {
         }
     ]);
     const result = await resultCursor.toArray();
-    return result.map( (item) => {return {
-        channelId : item._id,
-        channelName : `#${item.channel.name}`,
-        count : item.count
-    }});
+    return result.map( (item) => {
+        return {
+            channelId : item._id,
+            channelName : `#${item.channel.name}`,
+            count : item.count
+        };
+    });
 }
 
 export async function findUserTotals(): Promise<any> {
@@ -139,7 +141,7 @@ export async function findUserTotals(): Promise<any> {
         userName : item.user.name,
         isAdmin : item.user.isAdmin,
         count : item.count
-    }});
+    }; });
 }
 
 export async function findUsersInteractions(): Promise<any> {
@@ -155,10 +157,10 @@ export async function findUsersInteractions(): Promise<any> {
         },
         {
             $group : {
-                _id : {user: "$user", channel: "$channelID"},
-                userID : {$max: "$user"},
-                channelID : {$max: "$channelID"},
-                count : {$sum:1}
+                _id : { user: "$user", channel: "$channelID" },
+                userID : { $max: "$user" },
+                channelID : { $max: "$channelID" },
+                count : { $sum: 1}
             }
         },
         {
@@ -176,16 +178,18 @@ export async function findUsersInteractions(): Promise<any> {
                 userID : 1,
                 channelID : 1,
                 count: 1,
-                user: {name:1}
+                user: {name: 1}
             }
         }
     ]);
     const result = await resultCursor.toArray();
-    return result.map( (item) => { return {
-        userId : item.userID,
-        channelId : item.channelID,
-        count : item.count,
-    }});
+    return result.map( (item) => {
+            return {
+                userId : item.userID,
+                channelId : item.channelID,
+                count : item.count,
+        };
+    });
 }
 
 export async function findUserMessages(userId: string): Promise<any> {
@@ -265,6 +269,6 @@ export async function close(): Promise<void> {
     }
 }
 
-//findUsersInteractions().then( (result) => console.log(result));
+// findUsersInteractions().then( (result) => console.log(result));
 findUserTotals().then( (result) => console.log(result));
-//findChannelMessages("CDXKBM9N2").then( (r) => console.log(r));
+// findChannelMessages("CDXKBM9N2").then( (r) => console.log(r));

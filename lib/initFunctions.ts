@@ -24,7 +24,7 @@ export function onError(error, port) {
       default:
         throw error;
     }
-  }
+}
 
 export function normalizePort(val) {
     const port_ = parseInt(val, 10);
@@ -40,4 +40,4 @@ export function normalizePort(val) {
     }
 
     return false;
-  }
+}

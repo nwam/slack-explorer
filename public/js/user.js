@@ -1,9 +1,13 @@
 serverUrl = 'http://localhost:3000';
 id = window.nodeID;
+targetWordSize = 10;
 
 // CLOUD
 $.getJSON(`${serverUrl}/db/u/${id}`, (data) => {
     const words = data.words;
+    let avgWordSize = 0;
+    words.map( (w) => {avgWordSize+=w.size;});
+    avgWordSize /= words.length;
     console.log(words);
     
     var fill = d3.scale.category20();
@@ -13,7 +17,7 @@ $.getJSON(`${serverUrl}/db/u/${id}`, (data) => {
         .padding(5)
         .rotate(function() { return ~~(Math.random() * 2) * 90; })
         .font("Impact")
-        .fontSize(function(d) { return d.size*10; })
+        .fontSize(function(d) { return d.size*targetWordSize/avgWordSize; })
         .on("end", draw);
 
     layout.start();

@@ -15,10 +15,21 @@ Finally, since we log all the activity over time in a database, we have the pote
 
 # How to run
 
+You must have `ts-node` and `typescript` installed globally.
+
+1. Run `mongod`
+2. Populate the database with `ts-node lib/crawler.ts` - It might not terminate properly, but if you see a message that says "db closed", you can safely kill the process.
+
+Now you're ready to run the Express app.
+
+`npm install`
+
 `npm run watch-ts`
 
 In a SEPARATE terminal:
 
 `npm run watch-node`
 
-If u change a file under `views/` or `public/` run `npm run copy-static`
+The app will be available at `localhost:3000`
+
+If you change a file under `views/` or `public/` run `npm run copy-static`

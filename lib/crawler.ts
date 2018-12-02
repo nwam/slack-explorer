@@ -131,7 +131,7 @@ async function getMessages(channel: IChannel, family: string, startTime?: number
         await getMessages(channel, family, lastTs);
     }
     else {
-        console.log("Done getting messages for channel " + channel.name);
+        console.log(`Done getting messages for ${family.substring(0, family.length - 1)} ${channel.name}`);
     }
 }
 
@@ -187,10 +187,12 @@ async function fetch(): Promise<void> {
     return Promise.all([ channels, groups, users ]).then( () => {});
 }
 
-fetch().then( async () => {
-    console.log("Closing db now");
-    await db.close();
-    console.log("Done main fetch");
+db.dropDb().then( () => {
+    fetch().then( async () => {
+        console.log("Closing db now");
+        await db.close();
+        console.log("Done main fetch");
+    })
 });
 
 /*

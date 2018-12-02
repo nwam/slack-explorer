@@ -1,7 +1,9 @@
-// tslint:disable-next-line:no-require-imports
-import Mongo = require("mongodb");
+import Mongo from "mongodb";
 import { IMessageData, IChannel, IUser } from "./crawler";
-import { stringify } from "querystring";
+
+const COLLECTION_CHANNELS = "channels";
+const COLLECTION_MSGS = "messages";
+const COLLECTION_USERS = "users";
 
 const dbHost = "localhost";
 const DB_CREDS = "";
@@ -10,7 +12,7 @@ const dbUrl = `mongodb://${DB_CREDS}${dbHost}:27017/${dbName}`;
 // tslint:disable-next-line:max-line-length whitespace
 const commonWords : Set<string> = new Set(["the","of","and","a","to","in","is","you","that","it","he","was","for","on","are","as","with","his","they","I","at","be","this","have","from","or","one","had","by","word","but","not","what","all","were","we","when","your","can","said","there","use","an","each","which","she","do","how","their","if","will","up","other","about","out","many","then","them","these","so","some","her","would","make","like","him","into"]);
 
-const dbClient = new Mongo.MongoClient(dbUrl);
+const dbClient = new Mongo.MongoClient(dbUrl, { useNewUrlParser: true });
 
 let client: Mongo.MongoClient;
 let initFailed = false;
@@ -23,26 +25,46 @@ async function initialize(): Promise<Mongo.MongoClient> {
                 resolve(d);
           })
           .catch( (err) => {
-              reject(err);
               initFailed = true;
+              reject(err);
           });
     });
 }
 
 async function isDbGood(): Promise<boolean> {
     if (initFailed) {
-        console.error("Init failed");
+        console.error("Database init failed, make sure mongod is running.");
         return false;
     }
     else if (client == null) {
-        await initialize();
+        try {
+            await initialize();
+        }
+        catch(err) {
+            console.error("DB init failed", err);
+        }
     }
     return client != null;
 }
 
-const COLLECTION_CHANNELS = "channels";
-const COLLECTION_MSGS = "messages";
-const COLLECTION_USERS = "users";
+export async function close(): Promise<void> {
+    if (client != null) {
+        console.log("Closing db client");
+        return client.close(true);
+    }
+    else {
+        console.log("No db connection to close");
+    }
+}
+
+export async function dropDb(): Promise<void> {
+    if (! await isDbGood()) {
+        return;
+    }
+
+    console.log("DROP DB");
+    return client.db().dropDatabase();
+}
 
 export async function insertChannels(channels: IChannel[]): Promise<void> {
     if (! await isDbGood()) {
@@ -51,6 +73,34 @@ export async function insertChannels(channels: IChannel[]): Promise<void> {
 
     const result = await client.db().collection(COLLECTION_CHANNELS).insertMany(channels);
     console.log(`Inserted ${result.insertedCount} channels`);
+}
+
+export async function insertMessage(message: IMessageData): Promise<void> {
+    if (! await isDbGood()) {
+        return;
+    }
+
+    const result = await client.db().collection(COLLECTION_MSGS).insertOne(message);
+    console.log(`Inserted ${result.insertedCount} (should be 1) message`);
+}
+
+export async function insertMessages(messages: IMessageData[]): Promise<void> {
+    console.log("Inserting MessagesPage"); // , data);
+    if (! await isDbGood()) {
+        return;
+    }
+
+    const result = await client.db().collection(COLLECTION_MSGS).insertMany(messages);
+    console.log(`Inserted ${result.insertedCount} messages`);
+}
+
+export async function insertUsers(users: IUser[]): Promise<void> {
+    if (! await isDbGood()) {
+        return;
+    }
+
+    const result = await client.db().collection(COLLECTION_USERS).insertMany(users);
+    console.log(`Inserted ${result.insertedCount} users`);
 }
 
 export async function findChannel(channelID: string): Promise<IChannel> {
@@ -66,7 +116,7 @@ export async function findChannelTotals(): Promise<any> {
         return;
     }
 
-    const resultCursor = await client.db().collection("messages").aggregate([
+    const resultCursor = await client.db().collection(COLLECTION_MSGS).aggregate([
         {
             $group:
             {
@@ -112,7 +162,7 @@ export async function findUserTotals(): Promise<any> {
         return;
     }
 
-    const resultCursor = await client.db().collection("messages").aggregate([
+    const resultCursor = await client.db().collection(COLLECTION_MSGS).aggregate([
         {
             $group:
             {
@@ -154,7 +204,7 @@ export async function findUsersInteractions(): Promise<any> {
         return;
     }
 
-    const resultCursor = await client.db().collection("messages").aggregate([
+    const resultCursor = await client.db().collection(COLLECTION_MSGS).aggregate([
         {
             $match : {
                 subtype : { $not : { $eq : "channel_join"} }
@@ -202,7 +252,7 @@ export async function findUserMessages(userId: string): Promise<any> {
         return;
     }
 
-    const result = await client.db().collection("messages").find(
+    const result = await client.db().collection(COLLECTION_MSGS).find(
         { user : userId }
     );
     return result.toArray();
@@ -213,37 +263,20 @@ export async function findChannelMessages(channelId: string): Promise<any> {
         return;
     }
 
-    const result = await client.db().collection("messages").find(
-        {channelID : channelId});
+    const result = await client.db().collection(COLLECTION_MSGS).find(
+        {channelID : channelId}
+    );
     return result.toArray();
 }
 
 export async function findEntityMessages(id: string, type: string): Promise<any> {
     if (type === "channel") {
         return findChannelMessages(id);
-    } else if (type === "user") {
+    }
+    else if (type === "user") {
         return findUserMessages(id);
     }
     return null;
-}
-
-export async function insertMessage(message: IMessageData): Promise<void> {
-    if (! await isDbGood()) {
-        return;
-    }
-
-    const result = await client.db().collection(COLLECTION_MSGS).insertOne(message);
-    console.log(`Inserted ${result.insertedCount} (should be 1) message`);
-}
-
-export async function insertMessages(messages: IMessageData[]): Promise<void> {
-    console.log("Inserting MessagesPage"); // , data);
-    if (! await isDbGood()) {
-        return;
-    }
-
-    const result = await client.db().collection(COLLECTION_MSGS).insertMany(messages);
-    console.log(`Inserted ${result.insertedCount} messages`);
 }
 
 export async function findMessages(): Promise<IMessageData[]> {
@@ -253,15 +286,6 @@ export async function findMessages(): Promise<IMessageData[]> {
     }
 
     return client.db().collection(COLLECTION_MSGS).find({}).toArray();
-}
-
-export async function insertUsers(users: IUser[]): Promise<void> {
-    if (! await isDbGood()) {
-        return;
-    }
-
-    const result = await client.db().collection(COLLECTION_USERS).insertMany(users);
-    console.log(`Inserted ${result.insertedCount} users`);
 }
 
 export async function findUser(userID: string): Promise<IUser> {
@@ -283,16 +307,6 @@ export async function findUserID(username: string): Promise<string> {
     const id = result.id;
     console.log(`User with name ${username} has id ${id}`, result);
     return id;
-}
-
-export async function close(): Promise<void> {
-    if (client != null) {
-        console.log("Closing db client");
-        return client.close();
-    }
-    else {
-        console.log("No db connection to close");
-    }
 }
 
 export function countWords(messages: IMessageData[], topn = 250): any {

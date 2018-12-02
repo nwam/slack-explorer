@@ -17,14 +17,21 @@ router.get("/db/example", async function(req: express.Request, res: express.Resp
 });
 
 router.get("/db/network", async function(req: express.Request, res: express.Response, next: express.NextFunction) {
-  const channels = db.findChannelTotals();
-  const users = db.findUserTotals();
-  const interactions = db.findUsersInteractions();
+  try {
+    const channels = db.findChannelTotals();
+    const users = db.findUserTotals();
+    const interactions = db.findUsersInteractions();
+    
 
-  return res.json({
-    channels : await channels,
-    users : await users,
-    interactions : await interactions});
+    return res.json({
+      channels : await channels,
+      users : await users,
+      interactions : await interactions});
+
+    }
+  catch (err) {
+    return res.status(500).send("Database error: " + JSON.stringify(err));
+  }
 });
 
 router.get(`/db/u/:${NODE_ID_KEY}`, async function(req: express.Request, res: express.Response, next: express.NextFunction) {

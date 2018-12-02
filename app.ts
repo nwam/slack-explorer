@@ -6,24 +6,40 @@ import io from "socket.io";
 import http from "http";
 
 import Rtm from "./lib/rtm";
-import { normalizePort, onError } from "./lib/initFunctions";
 
 import { indexRouter } from "./routes/index";
 import dbRouter from "./routes/dbRouter";
 
+process.on('unhandledRejection', error => {
+  console.error('unhandledRejection', error);
+});
+
 const app = express();
 const server = http.createServer(app);
-const port = normalizePort(process.env.PORT || "3000");
+const port = 3000;
 
 app.set("port", port);
 server.listen(port);
-server.on("error", onError);
+server.on("error", (error: NodeJS.ErrnoException) =>{
+    if (error.syscall !== "listen") {
+      throw error;
+    }
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+      case "EACCES":
+        console.error("App Requires elevated privileges");
+        process.exit(1);
+        break;
+      case "EADDRINUSE":
+        console.error(`port ${port} is already in use`);
+        process.exit(1);
+        break;
+      default:
+        throw error;
+    }
+});
 server.on("listening", () => {
-  const addr = server.address();
-  const bind = typeof addr === "string"
-    ? "pipe " + addr
-    : "port " + addr.port;
-  console.log("Listening on " + bind);
+  console.log("Listening on port " + port);
 });
 
 // view engine setup

@@ -15,10 +15,15 @@ Finally, since we log all the activity over time in a database, we have the pote
 
 # How to run
 
+You must have `ts-node` and `typescript` installed globally.
+
+1. Run `mongod` (requires version >= 3.6)
+2. Populate the database with `npm run fetch` (also wipes the existing database)
+
+Start TSC in watch mode:
 `npm run watch-ts`
 
-In a SEPARATE terminal:
+Then, in a SEPARATE terminal, run the backend:
+`npm run dev`
 
-`npm run watch-node`
-
-If u change a file under `views/` or `public/` run `npm run copy-static`
+It should restart automatically on any code change.

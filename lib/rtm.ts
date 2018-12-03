@@ -1,6 +1,6 @@
-import Config from "./config";
 import * as db from "./db";
 import { IMessageData } from "./crawler";
+// import { RTMClient } from "@slack/client";
 
 const EVENT_MESSAGE = "message";
 const EVENT_NEW_RXN = "reaction_added";
@@ -10,7 +10,7 @@ export default class Rtm {
 
     private static socket;
 
-    public static startRTM(socket: any): Promise<void> {
+    public static startRTM(socket: any, token: string): Promise<void> {
         this.socket = socket;
 
         return new Promise<void>( (resolve, reject) => {
@@ -19,8 +19,8 @@ export default class Rtm {
             // tslint:disable-next-line:no-var-requires no-require-imports
             const { RTMClient } = require("@slack/client");
 
-            const rtm = new RTMClient(Config.token);
-            console.log("RTM starting up I hope!");
+            const rtm = new RTMClient(token);
+            console.log("RTM trying to start");
             rtm.start();
 
             // Log all incoming messages

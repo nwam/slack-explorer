@@ -1,9 +1,14 @@
 extends layout
 
-append title
-  input(id="search-input" type="text" placeholder="Enter your username")
-  button(type="submit" style="margin: 15px; padding-left: 5px; padding-right: 5px" onclick="onSearch()") Search
-  div(id="search-output" style="color: red")
+append top-section
+  div(id="search-div")
+    input(id="search-input" type="text" placeholder="Enter your username")
+    button(type="submit" class="btn" id="search-btn" onclick="onSearch()") Search
+    div(id="err-output")
+      | &nbsp;
+  div(id="refresh-div")
+    button(type="submit" class="btn" id="refresh-btn" onclick="fetch()") Populate
+
 
 block content
   div(id="viewport" style="width: 100%; height: 100%; background: #262626")

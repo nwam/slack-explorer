@@ -9,13 +9,40 @@ body {
   margin-top: 0;
   margin-bottom: 0;
   text-align: center;
-  color:black;
+  color: black;
   size: large;
+}
+
+#top-section {
+  display: flex;
+  padding-bottom: 2em;
+}
+
+.btn {
+  padding: 5px;
+  padding-left: 15px;
+  padding-right: 15px;
+  /* background-color: darkblue; */
+  /* color: whitesmoke; */
+}
+
+#search-btn {
+  margin-left: 2em;
+}
+
+#err-output {
+  color: red;
+  font-weight: bold;
+}
+
+#refresh-div {
+  display: inline-flex;
+  margin-left: auto;
+  padding-right: 25px;
 }
 
 #user-content {
   display: flex;
-
 }
 
 #user-content > #viewport {

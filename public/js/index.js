@@ -1,7 +1,6 @@
 // relies on graphFuncs.js
 
 $.getJSON(`${serverUrl}/db/network`, (networkData) => {
-    console.log("up ur butt2332dsdsfdf232");
     const qs = getQueryStringParams(window.location.search.substr(1));
     const selectedNodeID = qs.node;
     console.log("qs", qs, "selectedNode", selectedNodeID);
@@ -109,19 +108,38 @@ $.getJSON(`${serverUrl}/db/network`, (networkData) => {
 
 });
 
+const ERR_OUTPUT = "#err-output";
+
 function onSearch() {
     const username = $("#search-input").val();
     console.log("input username", username);
     if (username == "") {
-      $("#search-output").text("Enter a username to look up");
-      return;
+        $(ERR_OUTPUT).text("Enter a username to look up");
+        return;
     }
 
     $.ajaxSetup({ timeout:1000 });
-    $.get(`${serverUrl}/getid/${username}`, (data) => {
-      window.location.href = "/?node=" + data
+    $.get(`${serverUrl}/db/getid/${username}`, (data) => {
+        window.location.href = "/?node=" + data
     }).fail( (err) => {
         console.error("get fail", err);
-        $("#search-output").text("Failed to find username " + username);
+        $(ERR_OUTPUT).text("Failed to find username " + username);
     });
-  }
+}
+
+function fetch() {
+    $("html").css("cursor", "wait");
+
+    $.post("/db/fetch")
+    .done( () => {
+        console.log("Done fetch");
+        // window.location.pathname = "/";
+        window.location.reload();
+    })
+    .fail( (err) => {
+        $(ERR_OUTPUT).text(JSON.stringify(err));
+    })
+    .always( () => {
+        $("html").css("cursor", "auto");
+    });
+}

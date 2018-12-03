@@ -15,10 +15,7 @@ Finally, since we log all the activity over time in a database, we have the pote
 
 # How to run
 
-You must have `ts-node` and `typescript` installed globally.
-
-1. Run `mongod` (requires version >= 3.6)
-2. Populate the database with `npm run fetch` (also wipes the existing database)
+Run `mongod` (requires version >= 3.6)
 
 Start TSC in watch mode:
 `npm run watch-ts`

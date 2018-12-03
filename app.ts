@@ -1,17 +1,16 @@
 import express from "express";
-import * as path from "path";
+import path from "path";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
 import io from "socket.io";
 import http from "http";
 
-import Rtm from "./lib/rtm";
-
-import { indexRouter } from "./routes/index";
+import indexRouter from "./routes/indexRouter";
 import dbRouter from "./routes/dbRouter";
+import authRouter from "./routes/authRouter";
 
-process.on('unhandledRejection', error => {
-  console.error('unhandledRejection', error);
+process.on("unhandledRejection", (error) => {
+  console.error("unhandled promise rejection:\n", error);
 });
 
 const app = express();
@@ -20,7 +19,7 @@ const port = 3000;
 
 app.set("port", port);
 server.listen(port);
-server.on("error", (error: NodeJS.ErrnoException) =>{
+server.on("error", (error: NodeJS.ErrnoException) => {
     if (error.syscall !== "listen") {
       throw error;
     }
@@ -53,15 +52,14 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
-app.use("/", dbRouter);
+app.use("/db", dbRouter);
+app.use("/auth", authRouter);
 
-const serverSocket = io(server);
-
-Rtm.startRTM(serverSocket).then( () => console.log("RTM initialized in App"));
+export const serverSocket = io(server);
 
 // catch 404 and forward to error handler
 app.use(function(req: express.Request, res: express.Response, next: express.NextFunction) {
-  return res.status(404).send("There is no page at " + req.path);
+  return res.status(404).render("404", { title: "Page not found", path: req.path });
 });
 
 // error handler

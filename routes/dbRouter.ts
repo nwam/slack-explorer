@@ -1,27 +1,27 @@
 import express from "express";
 
+import fetch from "../lib/crawler";
 import * as db from "../lib/db";
-import { NODE_ID_KEY } from "./index";
+import { NODE_ID_KEY } from "./indexRouter";
+import { COOKIE_TOKEN } from "./authRouter";
 
 const router = express.Router();
 
-router.post("/newMsg", function(req: express.Request, res: express.Response, next: express.NextFunction) {
-  const newMsg = req.body;
-  console.log("dbRouter handling message:", newMsg);
+router.post("/fetch", async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const token = req.cookies[COOKIE_TOKEN];
+  if (token == null) {
+    return res.status(500).render("error", { error: `No token is available; <a href="/auth/install>Install the app into your workspace</a>`});
+  }
+  await fetch(token);
+  console.log("dbRouter done fetch");
   return res.sendStatus(204);
 });
 
-router.get("/db/example", async function(req: express.Request, res: express.Response, next: express.NextFunction) {
-  const example = await db.findMessages();
-  return res.json(example);
-});
-
-router.get("/db/network", async function(req: express.Request, res: express.Response, next: express.NextFunction) {
+router.get("/network", async function(req: express.Request, res: express.Response, next: express.NextFunction) {
   try {
     const channels = db.findChannelTotals();
     const users = db.findUserTotals();
     const interactions = db.findUsersInteractions();
-    
 
     return res.json({
       channels : await channels,
@@ -30,11 +30,11 @@ router.get("/db/network", async function(req: express.Request, res: express.Resp
 
     }
   catch (err) {
-    return res.status(500).send("Database error: " + JSON.stringify(err));
+    return res.status(500).render("error", { error: err });
   }
 });
 
-router.get(`/db/u/:${NODE_ID_KEY}`, async function(req: express.Request, res: express.Response, next: express.NextFunction) {
+router.get(`/u/:${NODE_ID_KEY}`, async function(req: express.Request, res: express.Response, next: express.NextFunction) {
   const id = req.params[NODE_ID_KEY];
   let type = "user";
   const channelFind = await db.findChannel(id);
@@ -43,7 +43,7 @@ router.get(`/db/u/:${NODE_ID_KEY}`, async function(req: express.Request, res: ex
   }
   const messages = await db.findEntityMessages(id, type);
   const words = db.countWords(messages);
-  console.log('words', words);
+  console.log("words", words);
   const timeCounts = db.getTimeCounts(messages);
 
   return res.json({
@@ -69,7 +69,7 @@ router.get(`/getid/:${UNAME_KEY}`, async function(req: express.Request, res: exp
   }
 });
 
-router.get("/db/overview", async function(req: express.Request, res: express.Response, next: express.NextFunction) {
+router.get("/overview", async function(req: express.Request, res: express.Response, next: express.NextFunction) {
   const messages = await db.findMessages();
   const words = db.countWords(messages);
   const timeCounts = db.getTimeCounts(messages);
@@ -80,4 +80,4 @@ router.get("/db/overview", async function(req: express.Request, res: express.Res
   });
 });
 
-export = router;
+export default router;

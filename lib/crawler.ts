@@ -1,6 +1,5 @@
 import request from "request-promise-native";
 import * as db from "./db";
-import Config from "./config";
 
 const baseUrl = "https://slack.com/api/";
 
@@ -31,19 +30,24 @@ export interface IUser {
     isAppUser: boolean;
 }
 
+let _token;
+
 async function post(family: string, method: string, form?: any): Promise<any> {
+    if (_token == null) {
+        console.error("There's no token, I can't do anything!");
+    }
+
     const url = `${baseUrl}${family}.${method}`;
     console.log(`Posting up to ${url} payload is:`, form);
-    const token = Config.token;
 
     const headers = {
         "accept-language": "en-US,en;q=0.8",
         "content-type": "application/x-www-form-urlencoded",
-        "Authorization": `Bearer ${token}`
+        "Authorization": `Bearer ${_token}`
     };
 
     const fullForm = form || {};
-    fullForm.token = token;
+    fullForm.token = _token;
 
     return request.post({
         json: true,
@@ -179,48 +183,18 @@ async function fetchUsers(): Promise<void> {
     await db.insertUsers(users);
 }
 
-async function fetch(): Promise<void> {
+const fetch = async (token: string): Promise<void> => {
+    _token = token;
+    await db.dropDb();
+
     const channels = fetchChannels().then(() => console.log("done channels"));
     const groups = fetchGroups().then(() => console.log("done groups"));
     const users = fetchUsers().then(() => console.log("done users"));
-    // tslint:disable-next-line:no-empty
-    return Promise.all([ channels, groups, users ]).then( () => {});
-}
+    await Promise.all([ channels, groups, users ]);
 
-db.dropDb().then( () => {
-    fetch().then( async () => {
-        console.log("Closing db now");
-        await db.close();
-        console.log("Done main fetch");
-    })
-});
+    console.log("Closing DB");
+    db.close();
+    console.log("Done fetch!");
+};
 
-/*
-async function fetch(): Promise<IChannelData[]> {
-    const channelIDs = await getChannelIds();
-    const channelDataPromises: Promise<IChannelData>[] = [];
-    for (const id of channelIDs) {
-        const messagesPromise = getMessages(id)
-            .then( (messages): IChannelData => {
-                return {
-                    id: id,
-                    name: "idk",
-                    data: messages
-                }
-            });
-        channelDataPromises.push(messagesPromise);
-    }
-
-    return Promise.all(channelDataPromises);
-}*/
-/*
-  - Get list of channels
-  - async For each channel
-    - get list of messages
-    - filter out what we don't care about
-      - files
-    - push that list of messages to the db
-    - repeat until no more messages
-  - After all channel data is grabbed
-  -
-*/
+export default fetch;

@@ -1,6 +1,10 @@
 {
+    "ignore": [
+        "dist/"
+    ],
     "events": {
         "start": "npm run copy-static",
-        "restart": "npm run copy-static"
-    }
+        "restart": ""
+    },
+    "ext": "*"
 }
